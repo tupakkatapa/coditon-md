@@ -1,0 +1,9 @@
+.wip
+node_modules
+result
+.direnv
+pipe
+private
+.devenv
+.pre-commit-config.yaml
+

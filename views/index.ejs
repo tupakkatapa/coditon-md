@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Jesse Karjalainen</title>
+    <link rel="stylesheet" href="/base.css">
+    <link rel="stylesheet" href="/sidebar.css">
+    <link rel="stylesheet" href="/dark-theme.css">
+    <link rel="stylesheet" href="/markdown.css">
+    <link rel="preload" href="/profile.jpg" as="image">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" id="highlightjs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="highlightjs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="image-container" id="redirect-to-root">
+                <img src="/profile.jpg">
+            </div>
+            <h1 id="redirect-to-root">~ Jesse Karjalainen</h1>
+            <%- folderStructure %>
+            <div class="theme-toggle">
+                <input type="checkbox" id="darkModeToggle">
+                <label for="darkModeToggle"></label>
+            </div>
+            <button class="arrow-btn" id="collapseSidebar">⟨</button>
+            <div class="social-media">
+                <a href="https://github.com/tupakkatapa" class="social-link">GitHub: tupakkatapa</a>
+            </div>
+        </div>
+        <div class="main">
+            <div id="file-content" class="markdown-body">
+                <%- initialContent %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get theme from localStorage once and use throughout
+        const currentTheme = localStorage.getItem('theme');
+        const themeToggle = document.getElementById("darkModeToggle"); // Declare and define themeToggle here
+
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            document.getElementById('highlightjs-light').disabled = true;
+            document.getElementById('highlightjs-dark').disabled = false;
+        }
+
+        themeToggle.addEventListener("change", () => {
+            if (themeToggle.checked) {
+                document.body.classList.add("dark-theme");
+                localStorage.setItem("theme", "dark");
+                document.getElementById("highlightjs-light").disabled = true;
+                document.getElementById("highlightjs-dark").disabled = false;
+            } else {
+                document.body.classList.remove("dark-theme");
+                localStorage.setItem("theme", "light");
+                document.getElementById("highlightjs-light").disabled = false;
+                document.getElementById("highlightjs-dark").disabled = true;
+            }
+        });
+
+        function addCopyButtons() {
+            const codeBlocks = document.querySelectorAll('.markdown-body pre code');
+            codeBlocks.forEach(block => {
+                const parent = block.parentNode;
+                if (parent.querySelector('.copy-button')) return;
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.textContent = 'Copy';
+
+                copyButton.addEventListener('click', () => {
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.textContent = block.textContent;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+                    copyButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyButton.textContent = 'Copy';
+                    }, 2000);
+                });
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-wrapper';
+                parent.replaceChild(wrapper, block);
+                wrapper.appendChild(block);
+                wrapper.appendChild(copyButton);
+            });
+        }
+
+        // Navigation event
+        window.addEventListener('popstate', event => {
+            const currentPath = window.location.pathname;
+            if (currentPath === '/') {
+                window.location.href = '/';
+            } else {
+                $.ajax({
+                    url: currentPath,
+                    success: function(data) {
+                        $("#file-content").html(data);
+                        addCopyButtons();
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addCopyButtons();
+
+            const fileLinks = document.querySelectorAll('.sidebar a');
+            fileLinks.forEach(link => {
+                link.textContent = link.textContent.trim().replace(/\..+$/, '');
+            });
+
+            const themeToggle = document.getElementById("darkModeToggle");
+
+            themeToggle.checked = (currentTheme === 'dark');
+            themeToggle.addEventListener("change", () => {
+                if (themeToggle.checked) {
+                    document.body.classList.add("dark-theme");
+                    localStorage.setItem("theme", "dark");
+                    document.getElementById("highlightjs-light").disabled = true;
+                    document.getElementById("highlightjs-dark").disabled = false;
+                } else {
+                    document.body.classList.remove("dark-theme");
+                    localStorage.setItem("theme", "light");
+                    document.getElementById("highlightjs-light").disabled = false;
+                    document.getElementById("highlightjs-dark").disabled = true;
+                }
+            });
+
+            document.querySelectorAll("#redirect-to-root").forEach(element => {
+                element.addEventListener("click", () => {
+                    window.location.href = "/";
+                });
+            });
+        });
+
+        const sidebar = document.querySelector('.sidebar');
+        const collapseBtn = document.getElementById('collapseSidebar');
+
+        collapseBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            collapseBtn.textContent = sidebar.classList.contains('collapsed') ? '⟩' : '⟨';
+        });
+
+        // Make sidebar resizable
+        $(document).ready(() => {
+            const isSidebarResizable = false;
+            if (isSidebarResizable) {
+                $(".sidebar").resizable({
+                    handles: "e",
+                    minWidth: 400,
+                    maxWidth: 600
+                });
+            }
+
+            // Ajax call on sidebar link click
+            $(".sidebar a:not(#redirect-to-root):not(.social-link)").on("click", function(e) {
+                e.preventDefault();
+                const target = $(this).attr("href");
+                $.ajax({
+                    url: target,
+                    success: function(data) {
+                        $("#file-content").html(data);
+                        window.history.pushState({}, "", target);
+                        addCopyButtons();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

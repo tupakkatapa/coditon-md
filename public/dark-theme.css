@@ -1,0 +1,78 @@
+/* Dark Theme Base Styles */
+.dark-theme {
+  background-color: #121212;
+  color: #fff;
+}
+
+/* Sidebar Styles in Dark Theme */
+.dark-theme .sidebar {
+  background-color: #1f1f1f;
+  border-color: #333;
+}
+
+.dark-theme .sidebar h1 {
+  color: #eee;
+}
+
+.dark-theme .sidebar a,
+.dark-theme .social-link {
+  color: #bbb;
+}
+
+.dark-theme .sidebar .image-container img {
+  border: 3px solid #333;
+}
+
+.dark-theme .sidebar a:hover {
+  color: #ddd;
+  background-color: transparent;
+}
+
+/* Markdown Body Styles in Dark Theme */
+.dark-theme .markdown-body {
+  background-color: #1f1f1f;
+  color: #e8e8e8;
+}
+
+.dark-theme .markdown-body h1,
+.dark-theme .markdown-body h2,
+.dark-theme .markdown-body h3,
+.dark-theme .markdown-body h4,
+.dark-theme .markdown-body h5,
+.dark-theme .markdown-body h6 {
+  color: #eee;
+}
+
+.dark-theme .markdown-body a {
+  color: #1e90ff;
+}
+
+.dark-theme .markdown-body blockquote {
+  color: #aaa;
+  border-left-color: #666;
+}
+
+.dark-theme .markdown-body code,
+.dark-theme .markdown-body pre {
+  background-color: #2a2a2a;
+}
+
+.dark-theme .markdown-body th,
+.dark-theme .markdown-body td {
+  border-color: #333;
+}
+
+.dark-theme .markdown-body th {
+  background-color: #333;
+  color: #eee;
+}
+
+.dark-theme .markdown-body tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+/* Additional Dark Theme Styles */
+.dark-theme .arrow-btn {
+  color: #F7F7F7;
+}
+
