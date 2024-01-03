@@ -18,7 +18,10 @@
         inputs.devenv.flakeModule
       ];
 
-      systems = nixpkgs.lib.systems.flakeExposed;
+      systems = [
+       "aarch64-linux"
+       "x86_64-linux"
+      ];
 
       perSystem = {
         self',
@@ -62,7 +65,7 @@
             yarnLock = ./yarn.lock;
             yarnNix = ./yarn.nix;
           };
-          default = self'.packages.blog;
+          default = self'.packages.coditon-blog;
         };
       };
 
