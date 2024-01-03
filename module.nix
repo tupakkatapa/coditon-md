@@ -5,6 +5,7 @@
   ...
 }: let
   cfg = config.services.coditon-blog;
+  coditon-blog = pkgs.callPackage ./package.nix {};
 in {
   options.services.coditon-blog = {
     enable = lib.mkEnableOption "blog.coditon.com";
@@ -33,7 +34,7 @@ in {
           Restart = "on-failure";
           DynamicUser = true;
           ExecStart = lib.concatStringsSep " \\\n\t" [
-            "${pkgs.coditon-blog}"
+            "${coditon-blog}/bin/coditon-blog"
             "--port ${toString cfg.port}"
             "--address ${cfg.address}"
           ];
@@ -42,4 +43,3 @@ in {
     };
   };
 }
-

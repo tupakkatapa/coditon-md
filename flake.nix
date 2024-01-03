@@ -13,14 +13,14 @@
     flake-parts,
     ...
   }:
-    flake-parts.lib.mkFlake {inherit inputs;} ({withSystem, ...}: rec {
+    flake-parts.lib.mkFlake {inherit inputs;} rec {
       imports = [
         inputs.devenv.flakeModule
       ];
 
       systems = [
-       "aarch64-linux"
-       "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-linux"
       ];
 
       perSystem = {
@@ -56,15 +56,7 @@
 
         # Packages, accessible through 'nix build', 'nix run', etc
         packages = {
-          coditon-blog = pkgs.mkYarnPackage {
-            name = "coditon-blog";
-            version = "0.1.0";
-
-            src = ./.;
-            packageJSON = ./package.json;
-            yarnLock = ./yarn.lock;
-            yarnNix = ./yarn.nix;
-          };
+          coditon-blog = pkgs.callPackage ./package.nix {};
           default = self'.packages.coditon-blog;
         };
       };
@@ -72,15 +64,11 @@
       flake = let
         inherit (self) outputs;
       in {
-        # Overlay packages
-        overlays.default = final: prev:
-          withSystem prev.stdenv.hostPlatform.system ({self', ...}: self'.packages);
-
         # NixOS modules
-        nixosModules.default = {
-          imports = [./module.nix];
-          nixpkgs.overlays = [self.overlays.default];
+        nixosModules = {
+          coditon-blog = import ./module.nix;
+          default = self.nixosModules.coditon-blog;
         };
       };
-    });
+    };
 }
