@@ -5,11 +5,52 @@ const path = require('path');
 const MarkdownIt = require('markdown-it');
 const hljs = require('highlight.js');
 
-const PORT = 8080;
-const HOST = '0.0.0.0';
 const CONTENTS_DIR = path.join(__dirname, 'contents');
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
+
+// Defaults
+let PORT = 8080;
+let HOST = '0.0.0.0';
+
+// Function to parse command-line arguments
+function parseArgs() {
+    const args = process.argv.slice(2);
+    for (let i = 0; i < args.length; i++) {
+        switch (args[i]) {
+            case '-h':
+            case '--help':
+                displayHelp();
+                process.exit(0);
+                break;
+            case '-a':
+            case '--address':
+                if (args[i + 1]) {
+                    HOST = args[i + 1];
+                    i++;
+                }
+                break;
+            case '-p':
+            case '--port':
+                if (args[i + 1]) {
+                    PORT = parseInt(args[i + 1]);
+                    i++;
+                }
+                break;
+        }
+    }
+}
+
+// Function to display help
+function displayHelp() {
+    console.log(`Usage: node [script] [options]
+Options:
+  -h, --help         Display help information
+  -a, --address      Set the host address (default: '0.0.0.0')
+  -p, --port         Set the port number (default: 8080)`);
+}
+
+parseArgs();
 
 const app = express();
 app.use(express.static('public'));
