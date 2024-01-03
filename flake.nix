@@ -52,17 +52,14 @@
         };
 
         # Packages, accessible through 'nix build', 'nix run', etc
-        packages = {
-          blog = pkgs.mkYarnPackage {
-            name = "coditon-blog";
-            version = "0.1.0";
+        packages.default = pkgs.mkYarnPackage {
+          name = "coditon-blog";
+          version = "0.1.0";
 
-            src = ./.;
-            packageJSON = ./package.json;
-            yarnLock = ./yarn.lock;
-            yarnNix = ./yarn.nix;
-          };
-          default = self'.packages.blog;
+          src = ./.;
+          packageJSON = ./package.json;
+          yarnLock = ./yarn.lock;
+          yarnNix = ./yarn.nix;
         };
       };
 
@@ -74,7 +71,7 @@
           withSystem prev.stdenv.hostPlatform.system ({self', ...}: self'.packages);
 
         # NixOS modules
-        nixosModules.coditon-blog = {
+        nixosModules.default = {
           imports = [./module.nix];
           nixpkgs.overlays = [self.overlays.default];
         };
