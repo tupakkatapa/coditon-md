@@ -94,11 +94,11 @@ in {
       coditon = {
         group = cfg.group;
         home = cfg.dataDir;
-        uid = config.ids.uids.coditon;
+        isSystemUser = true;
       };
     };
     users.groups = mkIf (cfg.group == "coditon") {
-      coditon.gid = config.ids.gids.coditon;
+      coditon = { };
     };
   };
 }
