@@ -74,7 +74,7 @@
           withSystem prev.stdenv.hostPlatform.system ({self', ...}: self'.packages);
 
         # NixOS modules
-        nixosModules.coditon-blog = {
+        nixosModules.default = {
           imports = [./module.nix];
           nixpkgs.overlays = [self.overlays.default];
         };
