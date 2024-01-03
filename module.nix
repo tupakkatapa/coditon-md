@@ -3,43 +3,102 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+with lib; let
   cfg = config.services.coditon-blog;
   coditon-blog = pkgs.callPackage ./package.nix {};
 in {
   options.services.coditon-blog = {
-    enable = lib.mkEnableOption "blog.coditon.com";
+    enable = mkEnableOption "blog.coditon.com";
 
-    address = lib.mkOption {
-      type = lib.types.str;
-      default = "0.0.0.0";
-      description = "Host address for the service";
+    dataDir = mkOption {
+      type = types.str;
+      default = "/var/lib/coditon-blog";
+      description = lib.mdDoc ''
+        The directory where service stores its data files.
+      '';
     };
 
-    port = lib.mkOption {
-      type = lib.types.int;
+    address = mkOption {
+      type = types.str;
+      default = "0.0.0.0";
+      description = ''
+        Host address for the service.
+      '';
+    };
+
+    port = mkOption {
+      type = types.int;
       default = 8080;
-      description = "Port number for the service";
+      description = ''
+        Port number for the service.
+      '';
+    };
+
+    openFirewall = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Open ports in the firewall for the web interface.
+      '';
+    };
+
+    user = mkOption {
+      type = types.str;
+      default = "coditon";
+      description = ''
+        User account under which service runs.
+      '';
+    };
+
+    group = mkOption {
+      type = types.str;
+      default = "coditon";
+      description = ''
+        Group under which service runs.
+      '';
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    systemd = {
-      services.coditon-blog = {
-        description = "blog.coditon.com";
-        after = ["network.target"];
-        wantedBy = ["multi-user.target"];
-        serviceConfig = {
-          Type = "simple";
-          Restart = "on-failure";
-          DynamicUser = true;
-          ExecStart = lib.concatStringsSep " \\\n\t" [
-            "${coditon-blog}/bin/coditon-blog"
-            "--port ${toString cfg.port}"
-            "--address ${cfg.address}"
-          ];
-        };
+  config = mkIf cfg.enable {
+    # Data directory
+    systemd.tmpfiles.rules = [
+      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+    ];
+
+    # Service
+    systemd.services.coditon-blog = {
+      description = "blog.coditon.com";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+      serviceConfig = {
+        Type = "simple";
+        User = cfg.user;
+        Group = cfg.group;
+        ExecStart = concatStringsSep " \\\n\t" [
+          "${coditon-blog}/bin/coditon-blog"
+          "--port ${toString cfg.port}"
+          "--address ${cfg.address}"
+        ];
+        Restart = "on-failure";
       };
+    };
+
+    # Firewall
+    networking.firewall = lib.mkIf cfg.openFirewall {
+      allowedTCPPorts = [cfg.port];
+    };
+
+    # User / Group
+    users.users = mkIf (cfg.user == "coditon") {
+      coditon = {
+        group = cfg.group;
+        home = cfg.dataDir;
+        uid = config.ids.uids.coditon;
+      };
+    };
+    users.groups = mkIf (cfg.group == "coditon") {
+      coditon.gid = config.ids.gids.coditon;
     };
   };
 }
