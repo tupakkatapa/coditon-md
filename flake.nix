@@ -53,7 +53,7 @@
 
         # Packages, accessible through 'nix build', 'nix run', etc
         packages = {
-          blog = pkgs.mkYarnPackage {
+          coditon-blog = pkgs.mkYarnPackage {
             name = "coditon-blog";
             version = "0.1.0";
 
