@@ -5,13 +5,13 @@ const path = require('path');
 const MarkdownIt = require('markdown-it');
 const hljs = require('highlight.js');
 
-const CONTENTS_DIR = path.join(__dirname, 'contents');
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
 
 // Defaults
 let PORT = 8080;
 let HOST = '0.0.0.0';
+let CONTENTS_DIR = path.join(__dirname, 'contents');
 
 // Function to parse command-line arguments
 function parseArgs() {
@@ -22,6 +22,13 @@ function parseArgs() {
             case '--help':
                 displayHelp();
                 process.exit(0);
+                break;
+            case '-d':
+            case '--datadir':
+                if (args[i + 1]) {
+                    CONTENTS_DIR = args[i + 1];
+                    i++;
+                }
                 break;
             case '-a':
             case '--address':
@@ -46,6 +53,7 @@ function displayHelp() {
     console.log(`Usage: node [script] [options]
 Options:
   -h, --help         Display help information
+  -d, --datadir      Set the data directory for contents (default: 'contents')
   -a, --address      Set the host address (default: '0.0.0.0')
   -p, --port         Set the port number (default: 8080)`);
 }

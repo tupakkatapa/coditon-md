@@ -2,7 +2,7 @@
 .sidebar {
     background-color: #fff;
     width: 400px;
-    position: relative;
+    position: fixed;
     padding: 20px;
     padding-top: 75px;
     overflow: hidden;
@@ -11,7 +11,11 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.5s ease;
-    transform: translateX(0); /* Starting position is 0 (fully visible) */
+    transform: translateX(0);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
 }
 
 /* Sidebar Image Container */
@@ -103,7 +107,7 @@
 
 /* Sidebar Collapsed State */
 .sidebar.collapsed {
-    transform: translateX(-395px); /* 400px minus 5px for the arrow button */
+    transform: translateX(-395px);
 }
 
 .sidebar.collapsed .image-container,
@@ -119,9 +123,11 @@
     border: none;
     cursor: pointer;
     font-size: 24px;
-    position: absolute;
+    position: fixed;
     top: 200px;
     right: 10px;
     color: #1F1F1F;
+    z-index: 3;
+    transition: right 0.5s ease;
 }
 

@@ -39,14 +39,27 @@ body {
 }
 
 .container {
-  height: 100vh;
-  display: flex;
+    display: flex;
+    height: 100vh;
+    transition: margin-left 0.5s;
 }
 
+.container.sidebar-collapsed {
+    justify-content: center;
+}
+
+/* Main content style */
 .main {
-  flex: 1;
-  padding: 30px;
-  overflow: auto;
+    transition: width 0.5s ease, margin-left 0.5s ease;
+    padding: 30px;
+    overflow: auto;
+    margin-left: 400px;
+    width: calc(100% - 400px);
+}
+
+.container.sidebar-collapsed .main {
+    margin-left: 5px;
+    width: calc(100% - 5px);
 }
 
 .metadata {
