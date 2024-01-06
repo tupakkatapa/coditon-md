@@ -1,14 +1,13 @@
-
-/* Base Markdown Body Styles */
+/* Markdown Body Base Styles */
 .markdown-body {
-  max-width: 900px;
-  margin: 0 auto;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
-  background-color: #fff;
-  padding: 30px 50px;
-  border-radius: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    padding: 30px 50px;
+    border-radius: 10px;
 }
 
 /* Header Styles */
@@ -18,87 +17,114 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  color: #444;
-  margin-top: 24px;
-  margin-bottom: 16px;
-  font-weight: 700;
-  line-height: 1.25;
+    color: #444;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    line-height: 1.25;
 }
 
 /* Link Styles */
 .markdown-body a {
-  color: #007BFF;
-  text-decoration: none;
+    color: #007bff;
+    text-decoration: none;
 }
 
 /* Blockquote Styles */
 .markdown-body blockquote {
-  padding: 0 1em;
-  color: #777;
-  border-left: 0.25em solid #ddd;
+    padding: 0 1em;
+    color: #777;
+    border-left: 0.25em solid #ddd;
 }
 
 /* Code Styling */
 .markdown-body code {
-  font-family: monospace;
-  background-color: #f7f7f7;
-  padding: 2px 5px;
-  border-radius: 3px;
+    font-family: monospace;
+    background-color: #f7f7f7;
+    padding: 2px 5px;
+    border-radius: 5px;
 }
 
 .markdown-body pre {
-  background-color: #f7f7f7;
-  padding: 10px;
-  border-radius: 5px;
-  overflow-x: auto;
+    background-color: #f7f7f7;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
 }
 
 .markdown-body pre code {
-  background-color: transparent;
-  padding: 0;
+    background-color: transparent;
+    font-size: 14px;
+    padding: 0;
 }
 
 /* Table Styles */
 .markdown-body table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
 }
 
 .markdown-body th,
 .markdown-body td {
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid #e0e0e0;
 }
 
 .markdown-body th {
-  background-color: #f9f9f9;
-  color: #333;
+    background-color: #f9f9f9;
+    color: #333;
 }
 
 .markdown-body tr:nth-child(even) {
-  background-color: #f7f7f7;
+    background-color: #f5f5f5;
+}
+
+/* Metadata Styles */
+.metadata {
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.meta-author,
+.meta-title,
+.meta-date {
+    flex: 1;
+    text-align: left;
+}
+.meta-title {
+    text-align: center;
+}
+.meta-date {
+    text-align: right;
 }
 
 /* Code Wrapper and Copy Button Styles */
 .code-wrapper {
-  position: relative;
+    position: relative;
 }
 
 .copy-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 10;
-  background-color: transparent;
-  color: #444;
-  border: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    background-color: transparent;
+    color: #444;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .code-wrapper:hover .copy-button {
-  opacity: 1;
+    opacity: 1;
 }
 
+.dark-theme .copy-button {
+    color: #eee;
+}

@@ -27,7 +27,7 @@
 .sidebar .image-container img {
     width: 70%;
     border-radius: 50%;
-    border: 3px solid #F5F5F5;
+    border: 3px solid #f5f5f5;
 }
 
 /* Sidebar Header Styles */
@@ -126,8 +126,29 @@
     position: fixed;
     top: 200px;
     right: 10px;
-    color: #1F1F1F;
+    color: #1f1f1f;
     z-index: 3;
     transition: right 0.5s ease;
+}
+
+/* Dark Mode Toggle Styles */
+.theme-toggle {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+#darkModeToggle {
+    display: none;
+}
+#darkModeToggle + label {
+    cursor: pointer;
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    background: #1f1f1f;
+    border-radius: 50%;
+    position: relative;
 }
 
