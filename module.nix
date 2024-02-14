@@ -45,7 +45,7 @@ in {
 
     user = mkOption {
       type = types.str;
-      default = "coditon";
+      default = "coditon-blog";
       description = ''
         User account under which service runs.
       '';
@@ -53,7 +53,7 @@ in {
 
     group = mkOption {
       type = types.str;
-      default = "coditon";
+      default = cfg.user;
       description = ''
         Group under which service runs.
       '';
@@ -90,15 +90,13 @@ in {
     };
 
     # User / Group
-    users.users = mkIf (cfg.user == "coditon") {
-      coditon = {
-        group = cfg.group;
+    users = lib.mkIf (cfg.user == "coditon-blog") {
+      users.coditon-blog = {
+        group = "coditon-blog";
         home = cfg.dataDir;
         isSystemUser = true;
       };
-    };
-    users.groups = mkIf (cfg.group == "coditon") {
-      coditon = { };
+      groups."coditon-blog" = { };
     };
   };
 }
