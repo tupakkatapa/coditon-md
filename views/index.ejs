@@ -23,31 +23,32 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="image-container" id="redirect-to-root">
-                <img src="/profile.jpg">
-            </div>
-            <h1 id="redirect-to-root">~ Jesse Karjalainen</h1>
-            <%- folderStructure %>
-            <div class="theme-toggle">
-                <input type="checkbox" id="darkModeToggle">
-                <label for="darkModeToggle"></label>
-            </div>
-            <button class="arrow-btn" id="collapseSidebar">⟨</button>
-            <div class="social-media">
-                <a href="https://github.com/tupakkatapa" class="social-link">GitHub: tupakkatapa</a>
+            <div class="sidebar-content">
+                <div class="image-container">
+                    <img src="/profile.jpg" id="redirect-to-root">
+                </div>
+                <h1>~ Jesse Karjalainen</h1>
+                <%- folderStructure %>
+                <div class="theme-toggle">
+                    <input type="checkbox" id="darkModeToggle">
+                    <label for="darkModeToggle"></label>
+                </div>
+                <button class="arrow-btn" id="collapseSidebar">⟨</button>
             </div>
         </div>
         <div class="main">
             <div id="file-content" class="markdown-body">
                 <%- initialContent %>
             </div>
+            <div class="social-links-bar">
+                <a href="https://github.com/tupakkatapa" class="social-link">GitHub: tupakkatapa</a>
+            </div>
         </div>
     </div>
 
     <script>
-        // Get theme from localStorage once and use throughout
         const currentTheme = localStorage.getItem('theme');
-        const themeToggle = document.getElementById("darkModeToggle"); // Declare and define themeToggle here
+        const themeToggle = document.getElementById("darkModeToggle");
 
         if (currentTheme === 'dark') {
             document.body.classList.add('dark-theme');
@@ -99,22 +100,6 @@
             });
         }
 
-        // Navigation event
-        window.addEventListener('popstate', event => {
-            const currentPath = window.location.pathname;
-            if (currentPath === '/') {
-                window.location.href = '/';
-            } else {
-                $.ajax({
-                    url: currentPath,
-                    success: function(data) {
-                        $("#file-content").html(data);
-                        addCopyButtons();
-                    }
-                });
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
             addCopyButtons();
 
@@ -123,63 +108,64 @@
                 link.textContent = link.textContent.trim().replace(/\..+$/, '');
             });
 
-            const themeToggle = document.getElementById("darkModeToggle");
-
             themeToggle.checked = (currentTheme === 'dark');
-            themeToggle.addEventListener("change", () => {
-                if (themeToggle.checked) {
-                    document.body.classList.add("dark-theme");
-                    localStorage.setItem("theme", "dark");
-                    document.getElementById("highlightjs-light").disabled = true;
-                    document.getElementById("highlightjs-dark").disabled = false;
-                } else {
-                    document.body.classList.remove("dark-theme");
-                    localStorage.setItem("theme", "light");
-                    document.getElementById("highlightjs-light").disabled = false;
-                    document.getElementById("highlightjs-dark").disabled = true;
-                }
-            });
-
-            document.querySelectorAll("#redirect-to-root").forEach(element => {
-                element.addEventListener("click", () => {
-                    window.location.href = "/";
-                });
-            });
         });
 
         const sidebar = document.querySelector('.sidebar');
         const collapseBtn = document.getElementById('collapseSidebar');
 
+        function setCollapseButtonRotation() {
+            if (sidebar.classList.contains('collapsed')) {
+                collapseBtn.style.transform = 'rotate(180deg)';
+            } else {
+                collapseBtn.style.transform = 'rotate(0deg)';
+            }
+        }
+
         collapseBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             document.querySelector('.container').classList.toggle('sidebar-collapsed');
-            collapseBtn.textContent = sidebar.classList.contains('collapsed') ? '⟩' : '⟨';
+            setCollapseButtonRotation(); // Use the new function here
         });
 
-        // Make sidebar resizable
-        $(document).ready(() => {
-            const isSidebarResizable = false;
-            if (isSidebarResizable) {
-                $(".sidebar").resizable({
-                    handles: "e",
-                    minWidth: 400,
-                    maxWidth: 600
-                });
+        function collapseSidebarIfExpanded() {
+            if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed');
+                document.querySelector('.container').classList.add('sidebar-collapsed');
+                setCollapseButtonRotation();
             }
+        }
 
-            // Ajax call on sidebar link click
-            $(".sidebar a:not(#redirect-to-root):not(.social-link)").on("click", function(e) {
+        $(document).ready(() => {
+            $("a:not(#redirect-to-root):not(.social-link)").on("click", function(e) {
                 e.preventDefault();
                 const target = $(this).attr("href");
+
                 $.ajax({
                     url: target,
                     success: function(data) {
                         $("#file-content").html(data);
                         window.history.pushState({}, "", target);
                         addCopyButtons();
+                        collapseSidebarIfExpanded();
                     }
                 });
             });
+
+            $("#redirect-to-root").on("click", function(e) {
+                e.preventDefault();
+                window.history.pushState({}, "", "/");
+                $.ajax({
+                    url: "/article/index.md",
+                    success: function(data) {
+                        $("#file-content").html(data);
+                        addCopyButtons();
+                        collapseSidebarIfExpanded();
+                    }
+                });
+            });
+
+            setCollapseButtonRotation();
         });
     </script>
 </body>

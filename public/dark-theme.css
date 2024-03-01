@@ -11,9 +11,14 @@
 }
 
 .dark-theme .sidebar h1,
-.dark-theme .sidebar a,
-.dark-theme .social-link {
+.dark-theme .sidebar a {
     color: #eee;
+}
+.dark-theme .social-link {
+  color: #eee
+}
+.dark-theme .social-links-bar {
+    border-top: 1px solid #2A2A2A;
 }
 
 .dark-theme .sidebar .image-container img {
@@ -76,4 +81,3 @@
 .dark-theme #darkModeToggle + label {
     background: #f5f5f5;
 }
-

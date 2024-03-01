@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const MarkdownIt = require('markdown-it');
 const hljs = require('highlight.js');
+const favicon = require('serve-favicon');
 
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
@@ -62,6 +63,7 @@ parseArgs();
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -106,10 +108,14 @@ app.use((req, res, next) => {
 // Route to serve the index page
 app.get('/', async (req, res) => {
     try {
-        const markdownContent = await readFileAsMarkdown(path.join(CONTENTS_DIR, 'index.md'));
+        const filePath = path.join(CONTENTS_DIR, 'index.md');
+        const fileContent = await fs.readFile(filePath, 'utf8');
+        const { content, metadata } = await parseFileContent(fileContent, filePath);
+        const outputContent = metadataToHtml(metadata) + content;
+
         res.render('index', {
             folderStructure: await generateFolderStructure(CONTENTS_DIR),
-            initialContent: markdownContent
+            initialContent: outputContent
         });
     } catch (err) {
         handleError(res, err);
@@ -179,7 +185,6 @@ async function parseFileContent(data, filePath) {
         });
 
         if (!metadata.date) metadata.date = await getFileDate(filePath);
-        // if (!metadata.title) metadata.title = path.basename(filePath, path.extname(filePath));
 
         return { content: md.render(matches[2]), metadata };
     }
@@ -202,25 +207,39 @@ function metadataToHtml(meta) {
         </div>`;
 }
 
-// Generate the folder structure in HTML format
+// Generate the folder structure in HTML format, sorted by date
 async function generateFolderStructure(dir, isRoot = true) {
-    const items = await fs.readdir(dir);
-    let structure = ['<ul>'];
+    const items = await fs.readdir(dir, { withFileTypes: true });
+    const detailedItems = [];
 
     for (const item of items) {
-        if (item.startsWith('.')) continue;
-        if (!MD_EXTENSIONS.includes(path.extname(item)) && !isRoot) continue;
+        if (item.name.startsWith('.')) continue;
+        if (!MD_EXTENSIONS.includes(path.extname(item.name)) && !isRoot) continue;
 
-        const itemPath = path.join(dir, item);
-        const isDirectory = (await fs.stat(itemPath)).isDirectory();
+        const itemPath = path.join(dir, item.name);
+        const isDirectory = item.isDirectory();
 
         if (isDirectory) {
-            structure.push(`<li><span><i class="fas fa-folder"></i> ${item}</span></li>`);
-            structure.push(await generateFolderStructure(itemPath, false));
+            // Directories don't have a date, so we set a default that sorts them first
+            detailedItems.push({ name: item.name, path: itemPath, date: '0000-00-00', isDirectory });
         } else if (!isRoot) {
-            const relativePath = path.relative(CONTENTS_DIR, itemPath).split(path.sep).join('/');
-            const date = (await parseFileContent(await fs.readFile(itemPath, 'utf8'), itemPath)).metadata.date || await getFileDate(itemPath);
-            structure.push(`<li><a href="/article/${relativePath}">${item}</a> <span class="file-date">${date}</span></li>`);
+            const content = await fs.readFile(itemPath, 'utf8');
+            const date = (await parseFileContent(content, itemPath)).metadata.date || await getFileDate(itemPath);
+            detailedItems.push({ name: item.name, path: itemPath, date, isDirectory: false });
+        }
+    }
+
+    // Sort items by date
+    detailedItems.sort((a, b) => b.date.localeCompare(a.date));
+
+    let structure = ['<ul>'];
+    for (const item of detailedItems) {
+        if (item.isDirectory) {
+            structure.push(`<li><span><i class="fas fa-folder"></i> ${item.name}</span></li>`);
+            structure.push(await generateFolderStructure(item.path, false));
+        } else {
+            const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');
+            structure.push(`<li><a href="/article/${relativePath}">${item.name}</a> <span class="file-date">${item.date}</span></li>`);
         }
     }
 
