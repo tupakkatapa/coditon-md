@@ -2,9 +2,9 @@
 date: "01-01-2024"
 ---
 
-# Injecting JSON data to NixOS
+# Import JSON data to NixOS
 
-In this blog post, I will briefly demonstrate how to inject JSON data into a NixOS configuration. This concept originated when I was trying to incorporate user input data from a web frontend into a NixOS configuration dynamically.
+In this blog post, I will briefly demonstrate how to import JSON data into a NixOS configuration. This concept originated when I was trying to incorporate user input data from a web frontend into a NixOS configuration dynamically.
 
 For a comprehensive understanding how this could be used, refer to [this documentation](https://github.com/ponkila/HomestakerOS/blob/main/docs/workflow.md) from a related project, HomestakerOS. It describes the entire workflow, including a data schema for the user input.
 
