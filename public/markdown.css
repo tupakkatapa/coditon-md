@@ -1,13 +1,16 @@
 /* Markdown Body Base Styles */
 .markdown-body {
-    max-width: 1000px;
+    max-width: 900px;
     min-width: 400px;
     margin: 0 auto;
     font-size: 16px;
     line-height: 1.6;
     color: #333;
     background-color: #fff;
-    padding: 30px 50px;
+    padding-top: 30px;
+    padding-bottom: 40px;
+    padding-left: 75px;
+    padding-right: 75px;
     border-radius: 10px;
 }
 

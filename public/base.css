@@ -1,13 +1,15 @@
 @font-face {
-    font-family: 'Ubuntu Nerd Font';
-    src: url('/UbuntuNerdFont-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'IBM Plex Mono';
+  font-display: swap;
+  font-weight: 500;
+  src: local('IBM Plex Mono Regular'), local('IBMPlexMono-Regular'),
+    url(//cdn.jsdelivr.net/gh/ibm/plex@latest/IBM-Plex-Mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2)
+      format('woff2');
 }
 
 /* Global Styles */
 body {
-    font-family: 'Ubuntu Nerd Font', sans-serif;
+    font-family: 'IBM Plex Mono', sans-serif;
     background-color: #f5f5f5;
     color: #333;
     margin: 0;
