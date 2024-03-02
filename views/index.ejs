@@ -156,7 +156,7 @@
                 e.preventDefault();
                 window.history.pushState({}, "", "/");
                 $.ajax({
-                    url: "/article/index.md",
+                    url: "/content/index.md",
                     success: function(data) {
                         $("#file-content").html(data);
                         addCopyButtons();

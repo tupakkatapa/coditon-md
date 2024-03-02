@@ -123,7 +123,7 @@ app.get('/', async (req, res) => {
 });
 
 // Route to serve articles
-app.get('/article/:path(*)', async (req, res) => {
+app.get('/content/:path(*)', async (req, res) => {
     const filePath = path.join(CONTENTS_DIR, req.params.path);
     if (!MD_EXTENSIONS.includes(path.extname(filePath).toLowerCase())) {
         return handleError(res, new Error(`Unsupported file extension for: ${filePath}`));
@@ -229,7 +229,7 @@ async function generateFolderStructure(dir, isRoot = true) {
         }
     }
 
-    // Sort items by date
+    // Sort contents by date
     detailedItems.sort((a, b) => b.date.localeCompare(a.date));
 
     let structure = ['<ul>'];
@@ -239,7 +239,7 @@ async function generateFolderStructure(dir, isRoot = true) {
             structure.push(await generateFolderStructure(item.path, false));
         } else {
             const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');
-            structure.push(`<li><a href="/article/${relativePath}">${item.name}</a> <span class="file-date">${item.date}</span></li>`);
+            structure.push(`<li><a href="/content/${relativePath}">${item.name}</a> <span class="file-date">${item.date}</span></li>`);
         }
     }
 

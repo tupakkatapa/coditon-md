@@ -1,4 +1,11 @@
-# Welcome to My Website!
+# 🌱 Welcome to My Website!
 
-This is the landing page for my website. Feel free to explore the contents and articles.
+Hello there! I'm Jesse, and this little corner of the world wide web is my digital sanctuary — a place where I share my thoughts on computers, life, and everything in between. Whether you're here for insights, inspiration or just to kill some time, I'm glad you stopped by.
+
+**Ready to Explore?**
+
+03-01-2024 - [My First Year as a Developer](https://blog.coditon.com/content/posts/My%20First%20Year%20as%20a%20Developer.md)
+
+
+
 
