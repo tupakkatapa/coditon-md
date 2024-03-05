@@ -24,10 +24,12 @@
     <div class="container">
         <div class="sidebar">
             <div class="sidebar-content">
-                <div class="image-container">
-                    <img src="/profile.jpg" id="redirect-to-root">
+                <div id="redirect-to-root">
+                    <div class="image-container">
+                        <img src="/profile.jpg">
+                    </div>
+                    <h1>~ Jesse Karjalainen</h1>
                 </div>
-                <h1>~ Jesse Karjalainen</h1>
                 <%- folderStructure %>
                 <div class="theme-toggle">
                     <input type="checkbox" id="darkModeToggle">
@@ -100,8 +102,41 @@
             });
         }
 
+        function setupFolderToggles() {
+            document.querySelectorAll('.sidebar .folder > span').forEach(folderSpan => {
+                folderSpan.addEventListener('click', function() {
+                    const listItem = this.parentElement;
+                    const sublist = listItem.querySelector('ul');
+                    const folderIcon = this.querySelector('i');
+                    const isOpen = listItem.classList.contains('open');
+
+                    // Toggle open class first to ensure correct max-height is set
+                    listItem.classList.toggle('open');
+                    folderIcon.classList.toggle('fa-folder-open');
+                    folderIcon.classList.toggle('fa-folder');
+
+                    // Set max-height depending on open class after toggling
+                    if (listItem.classList.contains('open')) {
+                        // If it's closed, set max-height to its scroll height so it can expand
+                        sublist.style.maxHeight = sublist.scrollHeight + "px";
+                    } else {
+                        // If the submenu is open, we close it by setting max-height to 0
+                        sublist.style.maxHeight = 0;
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             addCopyButtons();
+            setupFolderToggles();
+
+            // Make sure folders are uncollapsed by adding 'open' class to each folder
+            document.querySelectorAll('.sidebar li.folder').forEach(folder => {
+                folder.classList.add('open');
+                const folderList = folder.querySelector('ul');
+                folderList.style.maxHeight = folderList.scrollHeight + "px";
+            });
 
             const fileLinks = document.querySelectorAll('.sidebar a');
             fileLinks.forEach(link => {

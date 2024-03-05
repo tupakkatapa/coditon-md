@@ -8,6 +8,7 @@ const favicon = require('serve-favicon');
 
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
+const IGNORED_FILES = ['index'];
 
 // Defaults
 let PORT = 8080;
@@ -173,8 +174,17 @@ async function handleError(res, err) {
     });
 }
 
-// Parse Markdown file content for metadata and content
+
+// Parse Markdown file content for metadata and content, append filename as title
 async function parseFileContent(data, filePath) {
+    const filenameWithoutExtension = path.basename(filePath, path.extname(filePath));
+    let title = '';
+
+    // Append title only if the filename is not in the ignored list
+    if (!IGNORED_FILES.includes(filenameWithoutExtension)) {
+        title = `# ${filenameWithoutExtension}\n`;
+    }
+
     const matches = data.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
     const metadata = {};
 
@@ -186,9 +196,9 @@ async function parseFileContent(data, filePath) {
 
         if (!metadata.date) metadata.date = await getFileDate(filePath);
 
-        return { content: md.render(matches[2]), metadata };
+        return { content: md.render(title + matches[2]), metadata };
     }
-    return { content: md.render(data), metadata };
+    return { content: md.render(title + data), metadata };
 }
 
 // Utility to get file date
@@ -207,13 +217,15 @@ function metadataToHtml(meta) {
         </div>`;
 }
 
-// Generate the folder structure in HTML format, sorted by date
+// Generate the folder structure in HTML format, sorted by date, excluding ignored files
 async function generateFolderStructure(dir, isRoot = true) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     const detailedItems = [];
 
     for (const item of items) {
         if (item.name.startsWith('.')) continue;
+        const itemBaseName = path.basename(item.name, path.extname(item.name)).toLowerCase();
+        if (IGNORED_FILES.includes(itemBaseName)) continue; // Skip ignored files
         if (!MD_EXTENSIONS.includes(path.extname(item.name)) && !isRoot) continue;
 
         const itemPath = path.join(dir, item.name);
@@ -235,7 +247,7 @@ async function generateFolderStructure(dir, isRoot = true) {
     let structure = ['<ul>'];
     for (const item of detailedItems) {
         if (item.isDirectory) {
-            structure.push(`<li><span><i class="fas fa-folder"></i> ${item.name}</span></li>`);
+            structure.push(`<li class="folder open"><span><i class="fas fa-folder-open"></i> ${item.name}</span>`);
             structure.push(await generateFolderStructure(item.path, false));
         } else {
             const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');

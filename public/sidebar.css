@@ -59,7 +59,7 @@
 }
 
 .sidebar li {
-    margin: 10px 0;
+    margin: 5px 0;
     position: relative;
 }
 
@@ -75,10 +75,22 @@
 }
 
 .sidebar li > ul {
-    display: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
     padding-left: 1.5em;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    max-height: 500px;
+}
+
+.sidebar li.open > ul {
+    display: block;
+}
+
+.fas.fa-folder {
+    cursor: pointer;
+}
+
+.fas.fa-folder-open {
+    cursor: pointer;
 }
 
 .show {
