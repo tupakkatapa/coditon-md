@@ -7,7 +7,7 @@
 /* Sidebar Styles in Dark Theme */
 .dark-theme .sidebar {
     background-color: #1f1f1f;
-    border-color: #333;
+    border: 1px solid #333;
 }
 
 .dark-theme .sidebar h1,
@@ -34,6 +34,7 @@
 .dark-theme .markdown-body {
     background-color: #1f1f1f;
     color: #e8e8e8;
+    border: 1px solid #333
 }
 
 .dark-theme .markdown-body h1,
