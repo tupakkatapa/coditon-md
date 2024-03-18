@@ -28,6 +28,16 @@
     line-height: 1.25;
 }
 
+.markdown-body h1 a,
+.markdown-body h2 a,
+.markdown-body h3 a,
+.markdown-body h4 a,
+.markdown-body h5 a,
+.markdown-body h6 a {
+    color: inherit;
+    text-decoration: none;
+}
+
 /* Link Styles */
 .markdown-body a {
     color: #007bff;

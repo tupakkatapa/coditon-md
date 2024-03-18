@@ -38,6 +38,7 @@
             packages = with pkgs; [
               yarn
               yarn2nix
+              nodejs
             ];
             env = {
               NIX_CONFIG = ''

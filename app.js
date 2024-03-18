@@ -5,6 +5,8 @@ const path = require('path');
 const MarkdownIt = require('markdown-it');
 const hljs = require('highlight.js');
 const favicon = require('serve-favicon');
+const yaml = require('js-yaml');
+const markdownItAnchor = require('markdown-it-anchor');
 
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
@@ -14,6 +16,8 @@ const IGNORED_FILES = ['index'];
 let PORT = 8080;
 let HOST = '0.0.0.0';
 let CONTENTS_DIR = path.join(__dirname, 'contents');
+let URL = 'https://blog.coditon.com';
+let NAME = 'Jesse Karjalainen';
 
 // Function to parse command-line arguments
 function parseArgs() {
@@ -71,6 +75,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Plugins list
 const plugins = [
     'pica',
+    'markdown-it-anchor',
     'markdown-it-highlightjs',
     'markdown-it-emoji',
     'markdown-it-sub',
@@ -95,6 +100,10 @@ const md = new MarkdownIt({
     },
     typographer: true,
     linkify: true
+}).use(markdownItAnchor, {
+    permalink: markdownItAnchor.permalink.headerLink(),
+    slugify: s => encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-')),
+    level: 2
 });
 
 // Apply plugins
@@ -121,6 +130,12 @@ app.get('/', async (req, res) => {
     } catch (err) {
         handleError(res, err);
     }
+});
+
+// Log requests
+app.use((req, res, next) => {
+    console.log('Incoming request:', req.url);
+    next();
 });
 
 // Route to serve articles
@@ -185,36 +200,38 @@ async function parseFileContent(data, filePath) {
         title = `# ${filenameWithoutExtension}\n`;
     }
 
-    const matches = data.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-    const metadata = {};
+    const matches = data.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
 
     if (matches) {
-        METADATA_FIELDS.forEach(field => {
-            const match = matches[1].match(new RegExp(`${field}: "(.*?)"`));
-            metadata[field] = match ? match[1] : undefined;
-        });
+        const metadata = yaml.load(matches[1]) || {};
 
         if (!metadata.date) metadata.date = await getFileDate(filePath);
 
         return { content: md.render(title + matches[2]), metadata };
+    } else {
+        return { content: md.render(title + data), metadata: {} };
     }
-    return { content: md.render(title + data), metadata };
 }
 
 // Utility to get file date
 async function getFileDate(filePath) {
-    const fileStat = await fs.stat(filePath);
-    return fileStat.mtime.toISOString().split('T')[0];
+    try {
+        const stats = await fs.stat(filePath);
+        return stats.mtime.toISOString().split('T')[0];
+    } catch (error) {
+        console.error('Error getting file date:', error);
+        throw error;
+    }
 }
 
 // Convert metadata to HTML
 function metadataToHtml(meta) {
-    return `
-        <div class="metadata">
-            <span class="meta-author">${meta.author || '&nbsp;'}</span>
-            <span class="meta-title">${meta.title || '&nbsp;'}</span>
-            <span class="meta-date">${meta.date || '&nbsp;'}</span>
-        </div>`;
+    let htmlContent = '<div class="metadata">';
+    METADATA_FIELDS.forEach(field => {
+        htmlContent += `<span class="meta-${field}">${meta[field] || '&nbsp;'}</span>`;
+    });
+    htmlContent += '</div>';
+    return htmlContent;
 }
 
 // Generate the folder structure in HTML format, sorted by date, excluding ignored files

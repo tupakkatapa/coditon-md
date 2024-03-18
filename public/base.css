@@ -50,7 +50,14 @@ body {
 }
 
 .social-link {
-  color: #444
+    color: #444;
+    text-decoration: none;
+    padding: 8px;
+    display: inline-block;
+}
+
+.social-link:hover {
+    color: #007bff;
 }
 
 .social-links-bar {
@@ -60,6 +67,10 @@ body {
     padding: 10px 0;
     text-align: center;
     border-top: 1px solid #e1e1e1;
+}
+
+.social-links-bar i {
+    margin-right: 5px;
 }
 
 .main {

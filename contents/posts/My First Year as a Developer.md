@@ -1,5 +1,5 @@
 ---
-date: "03-01-2024"
+date: "2024-03-01"
 ---
 
 I have been earning my bread by learning and developing using Nix since the beginning of last year, finding myself in a career that feels right. I've only stumbled upon programming and been using Linux for a couple of years. I am a builder by education and have worked in the construction industry for the past four summers, which is hard work. I don't feel like I fit in there; I don't like schedules, rules, or norms. I also studied for three years to become a construction engineer but dropped out due to the ridiculous mass hysteria. Well, despite these, I feel that I have never learned as much in my life as I did last year, even though I have attended schools. For this, I can thank [Juuso Haavisto](https://github.com/jhvst), who pulled me into this venture out of nowhere.

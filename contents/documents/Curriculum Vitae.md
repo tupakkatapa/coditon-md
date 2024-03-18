@@ -1,10 +1,10 @@
 ---
-date: "03-02-2024"
+date: "2024-03-02"
 ---
 
 My name is Jesse, I am currently located in Oulu, Finland, and willing to consider moving to another city or country. I have been involved in education and work focusing on construction but recently have found a passion for software engineering. My skills revolve around Linux, scripting, networking and a bit of web development, with a particular focus on NixOS. I am especially interested in learning Rust as my go-to programming language. Whether I have zero or moderate knowledge in a particular area, I always consider my best qualities to be creativity, curiosity, willingness to learn, and Finnish "[sisu](https://en.wikipedia.org/wiki/Sisu)".
 
-Skills from my point of view (rated on a scale from 1 to 5): Ethereum (2), Git (3), HTML/CSS (1), JavaScript (1), Linux (4), Networking (3), Python (4), Rust (1), Shell (4), Virtualization (2).
+Skills from my point of view (rated on a scale from 1 to 5): Bash (4), Ethereum (2), Git (3), HTML/CSS (1), iPXE (4), JavaScript (1), Linux (3), Networking (3), Nix/NixOS (4), Python (4), Rust (1), Virtualization (2).
 
 ## Work Experience
 

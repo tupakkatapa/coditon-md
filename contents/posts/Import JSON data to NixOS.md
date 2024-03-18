@@ -1,5 +1,5 @@
 ---
-date: "01-01-2024"
+date: "2024-01-01"
 ---
 
 In this blog post, I will briefly demonstrate how to import JSON data into a NixOS configuration. This concept originated when I was trying to incorporate user input data from a web frontend into a NixOS configuration dynamically.
