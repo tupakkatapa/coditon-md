@@ -2,7 +2,7 @@
 date: "2024-03-27"
 ---
 
-Let's talk about NixOS for a second. It emphasizes the declarative aspect of its configuration, meaning it focuses on defining *what* the system should be, not *how* to achieve it.
+Let's talk about NixOS for a second. It has a declarative configuration model: you create or edit a description of the desired configuration of your system, and then NixOS takes care of making it happen. This means that you are defining *what* the system should be like, not *how* it achieves that state.
 
 So, it is declarative programming.. [or is it?](https://youtu.be/TN25ghkfgQA?si=8iDYxKcA4dyNwoC0&t=2s)
 
@@ -37,7 +37,7 @@ This is basically just a shell script that is run by the kernel, the location of
 In the context of NixOS, it might look something like this:
 
 ```
-init=/nix/store/7f8qms2rm5c6fiqrr0a2ydh6mg6ygv6b-nixos-system-vladof-24.05.20240322.4f3bceb/init
+init=/nix/store/0d2hzxxclcg60gxwgph9sjl0wzy7l9ag-nixos-system-vladof-24.05.20240322.4f3bceb/init
 ```
 
 It points to an `init` symlink within the Nix store, that symlink points to another derivation within the Nix store `init -> /nix/store/wbp286g2jzflgarp6qrpd47grqv0gqfv-stage-1-init.sh`, containing the actual init script called `stage-1-init.sh`.
@@ -65,7 +65,7 @@ If you don't know what netbooting is and how it works, honestly, I don't know wh
 
 ### Server Requirements
 
-We need to have a server running DHCP/TFTP and HTTP(s) to serve the boot images. Preferably it has to be able to serve certain boot images for specific hosts. Luckily, there is a NixOS module that does exactly that; Nixie. It significantly simplifies the process of setting up and managing our network-based boot environment, and its only requirements are that the host is running NixOS and is capable of compiling NixOS hosts and kernel, hardware-wise.
+We need to have a server running DHCP/TFTP and HTTP(s) to serve the boot images. Preferably it has to be able to serve certain boot images for specific hosts. Luckily, there is a NixOS module that does exactly that; [Nixie](https://github.com/majbacka-labs/nixos.fi). It significantly simplifies the process of setting up and managing our network-based boot environment, and its only requirements are that the host is running NixOS and is capable of compiling NixOS hosts and kernel, hardware-wise.
 
 ### Client Requirements
 
@@ -73,55 +73,71 @@ The requirements for the bootable client, regardless of whether we are talking a
 
 - **Kernel + initrd**
 
-  ```
-  #!ipxe
-  kernel bzImage init=/nix/store/vxvl8zccs0vkmnhpgcy558n7jfal2vxk-nixos-system-bandit-23.11.20240308.2be119a/init initrd=initrd.zst loglevel=4
-  initrd initrd.zst
-  boot
-  ```
+    ```
+    #!ipxe
+    kernel bzImage init=/nix/store/w95bhycbcnx5npfrvp88p8993qcj8nk1-nixos-system-bandit-23.11.20240308.2be119a/init initrd=initrd.zst loglevel=4
+    initrd initrd.zst
+    boot
+    ```
 
-  This format is a traditional boot configuration that includes the Linux kernel (bzImage) and an initial RAM disk (initrd). The initrd is a temporary root file system that is loaded into memory when the system boots. It contains our whole, pre-configured operating system and is bound to the kernel and loaded as part of the kernel boot procedure.
+    This format is a traditional boot configuration that includes the Linux kernel (bzImage) and an initial RAM disk (initrd). The initrd is a temporary root file system that is loaded into memory when the system boots. It contains our whole, pre-configured operating system and is bound to the kernel and loaded as part of the kernel boot procedure.
 
-  This format can also be used to [kexec](https://wiki.archlinux.org/title/Kexec) into another kernel from the currently running kernel.
+    There are also some additional use cases for this format. It can be used to [kexec](https://wiki.archlinux.org/title/Kexec) into another kernel from the currently running kernel, and it is suitable for use with the [rEFInd](http://www.rodsbooks.com/refind/) boot manager.
 
-  You can apply this format with [this](https://github.com/ponkila/nixobolus/blob/1667a313ed21acf69daf749208b1e42bc5814e1c/modules/netboot-kexec.nix) netboot-kexec NixOS module, but please be aware that there is an [issue](https://github.com/NixOS/nixpkgs/issues/203593) that prevents booting if the initrd exceeds 2.1 GB.
+    >>> /boot/EFI/BOOT/refind.conf
+
+        timeout 1
+        default_selection 1
+
+        menuentry "Bandit" = {
+          icon /EFI/BOOT/icons/os_linux.png
+          volume "EFI system partition"
+          loader images/bandit/bzImage
+          initrd images/bandit/initrd.zst
+          options "init=/nix/store/w95bhycbcnx5npfrvp88p8993qcj8nk1-nixos-system-bandit-23.11.20240308.2be119a/init loglevel=4"
+        }
+
+    >>>
+
+    You can apply this format with [this](https://github.com/ponkila/nixobolus/blob/1667a313ed21acf69daf749208b1e42bc5814e1c/modules/netboot-kexec.nix) netboot-kexec NixOS module, but please be aware that there is an [issue](https://github.com/NixOS/nixpkgs/issues/203593) that prevents booting if the initrd exceeds 2.1 GB.
 
 - **Kernel + initrd + squashfs**
 
-  ```
-  #!ipxe
-  kernel bzImage rootfs=squashfs.img init=/nix/store/0d2hzxxclcg60gxwgph9sjl0wzy7l9ag-nixos-system-vladof-24.05.20240322.4f3bceb/init initrd=initrd.zst ip=dhcp boot.shell_on_fail boot.shell_on_fail mitigations=off l1tf=off mds=off no_stf_barrier noibpb noibrs nopti nospec_store_bypass_disable nospectre_v1 nospectre_v2 tsx=on tsx_async_abort=off loglevel=4
-  initrd initrd.zst
-  boot
-  ```
+    ```
+    #!ipxe
+    kernel bzImage rootfs=squashfs.img init=/nix/store/0d2hzxxclcg60gxwgph9sjl0wzy7l9ag-nixos-system-vladof-24.05.20240322.4f3bceb/init initrd=initrd.zst ip=dhcp boot.shell_on_fail boot.shell_on_fail mitigations=off l1tf=off mds=off no_stf_barrier noibpb noibrs nopti nospec_store_bypass_disable nospectre_v1 nospectre_v2 tsx=on tsx_async_abort=off loglevel=4
+    initrd initrd.zst
+    boot
+    ```
 
-  To address the issue of booting larger images, we had to slightly modify the previous format to this. Now, most of the initrd contents have been moved to a squashfs image, leaving only a minimal set of directories and executables in the initrd. This change allows the squashfs to be downloaded during the init process, bypassing the size limitation introduced by the issue. To achieve this, we need to use a [patched init script](https://github.com/majbacka-labs/nixpkgs/commits/patch-init1sh/) that introduces a `rootfs` kernel parameter. CoreOS has also adopted this approach.
+    To address the issue of booting larger images, we had to slightly modify the previous format to this. Now, most of the initrd contents have been moved to a squashfs image, leaving only a minimal set of directories and executables in the initrd. This change allows the squashfs to be downloaded during the init process, bypassing the size limitation introduced by the issue. To achieve this, we need to use a [patched init script](https://github.com/majbacka-labs/nixpkgs/commits/patch-init1sh/) that introduces a `rootfs` kernel parameter. CoreOS has also adopted this approach.
 
-  The client has to be able to download the squashfs in Stage 1; for this, we need to make the drivers built-in. This can be automated, but you can manually [lspci](https://www.man7.org/linux/man-pages/man8/lspci.8.html) and [kernelconfig.io](https://www.kernelconfig.io/index.html) to get kernel module names.
+    The client has to be able to download the squashfs in Stage 1; for this, we need to make the drivers built-in to the kernel. This can be automated, but you can manually use [lspci](https://www.man7.org/linux/man-pages/man8/lspci.8.html) and [kernelconfig.io](https://www.kernelconfig.io/index.html) to get kernel module names.
 
-  Then enable them like this:
+    Then enable them like this:
 
-  ```nix
-  boot.kernelPatches = [
-    {
-      name = "enable r8169 (NIC)";
-      patch = null;
-      extraConfig = ''
-        ETHERNET y
-        NET_VENDOR_REALTEK y
-        R8169 y
-      '';
-    }
-  ];
-  ```
+    ```nix
+    boot.kernelPatches = [
+      {
+        name = "enable r8169 (NIC)";
+        patch = null;
+        extraConfig = ''
+          ETHERNET y
+          NET_VENDOR_REALTEK y
+          R8169 y
+        '';
+      }
+    ];
+    ```
 
-  Unlike the previous format, this cannot be used to kexec into another kernel because it does not support a separate squashfs image.
+    Unlike the previous format, this cannot be used to kexec into another kernel because it does not support a separate squashfs image. I am currently attempting to make this format compatible with the rEFInd boot manager. Let's see how it progresses.
 
-  We've successfully implemented this format as NixOS module; however, it's part of the Nixie project, which is closed-source, preventing me from sharing it.
+    We've successfully implemented this format as NixOS module; however, it's part of the Nixie project, which is closed-source, preventing me from sharing it.
 
 - **ISO**
 
-  It should be possible to use the ISO format, although I haven't experimented with it since we've got along with the previous formats. If you want to give it a go, check out the [sanboot](https://ipxe.org/cmd/sanboot) command. **Nixie does not support the ISO format**.
+    It should be possible to use the ISO format, although I haven't experimented with it since we've got along with the previous formats. If you want to give it a go, check out the [sanboot](https://ipxe.org/cmd/sanboot) command.
+    **Nixie does not support the ISO format**.
 
 ## Debug
 
@@ -129,17 +145,17 @@ If you decide to get your hands dirty regarding booting process, here are some t
 
 1. **Debug Mode**
 
-    To gain a shell at the end of Stage 1, you have to enable debug mode like this:
+    To gain a shell at the Stage 1 aka. single-user mode, you have to enable debug mode like this:
 
     ```nix
     boot.kernelParams = [
-      # Initiates a an interactive shell
+      # Initiates a an interactive shell at Stage 1
       "boot.debug1"
 
       # Same as debug1, but waits until kernel modules are loaded
       "boot.debug1devices"
 
-      # Same as debug1, but waits until 'needForBoot' filesystems are mounted
+      # Same as debug1, but waits until 'neededForBoot' filesystems are mounted
       "boot.debug1mounts"
 
       # Same as debug1, but only if the boot process encounters an error

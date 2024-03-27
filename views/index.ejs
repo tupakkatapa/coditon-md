@@ -175,19 +175,27 @@
 
         function setupLevel1HeaderClicks() {
             document.querySelectorAll('#file-content h1').forEach(header => {
-                header.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const currentPath = window.location.pathname;
-                    window.history.pushState({}, '', currentPath);
-                    $.ajax({
-                        url: currentPath,
-                        success: function(data) {
-                            $("#file-content").html(data);
-                            addCopyButtons();
-                            setupLevel1HeaderClicks();
-                        }
+                const currentPath = window.location.pathname;
+                if (currentPath !== '/') {
+                    header.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.history.pushState({}, '', currentPath);
+                        $.ajax({
+                            url: currentPath,
+                            success: function(data) {
+                                $("#file-content").html(data);
+                                addCopyButtons();
+                                setupLevel1HeaderClicks();
+                            }
+                        });
                     });
-                });
+                } else {
+                    // For index.md page, we can disable AJAX call or add a different behavior
+                    header.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.scrollTo(0, 0);
+                    });
+                }
             });
         }
 
