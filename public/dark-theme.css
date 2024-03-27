@@ -46,6 +46,16 @@
     color: #eee;
 }
 
+.dark-theme .markdown-body h1 a,
+.dark-theme .markdown-body h2 a,
+.dark-theme .markdown-body h3 a,
+.dark-theme .markdown-body h4 a,
+.dark-theme .markdown-body h5 a,
+.dark-theme .markdown-body h6 a {
+    color: inherit;
+    text-decoration: none;
+}
+
 .dark-theme .markdown-body a {
     color: #1e90ff;
 }
