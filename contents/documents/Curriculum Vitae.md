@@ -12,7 +12,7 @@ Skills from my point of view (rated on a scale from 1 to 5): Bash (4), Ethereum 
 
   Software Engineer, February 2023 - March 2024
 
-  Developed [Nixie](https://github.com/majbacka-labs/nixos.fi), a NixOS module leveraging RAMdisks and PXE booting to streamline the setup and management of a network-based boot environment.
+  Developed [Nixie](https://github.com/majbacka-labs/nixos.fi), a NixOS module leveraging RAM disks and PXE booting to streamline the setup and management of a network-based boot environment.
 
 - **Ponkila Oy**
 
@@ -38,7 +38,7 @@ Skills from my point of view (rated on a scale from 1 to 5): Bash (4), Ethereum 
 
   Bachelor of Construction Engineering, August 2018 - August 2021
 
-  Branched into project management. Dropped out due to the mass hysteria, but may consider completing another bachelor's degree in the future, with most of the common subjects likely to be approved due to the coursework done here.
+  Branched into project management. Dropped out due to the COVID-19 mass hysteria, but may consider completing another bachelor's degree in the future, with most of the common subjects likely to be approved due to the coursework done here.
 
 - **Luovi Vocational College**
 

@@ -4,5 +4,6 @@ Hello there! I'm Jesse, and this little corner of the world wide web is my digit
 
 **Ready to Explore?**
 
-03-01-2024 - [My First Year as a Developer](https://blog.coditon.com/content/posts/My%20First%20Year%20as%20a%20Developer.md)
+2024-03-27 - [Netbooting NixOS](https://blog.coditon.com/content/posts/Netbooting%20NixOS.md)
+2024-03-01 - [My First Year as a Developer](https://blog.coditon.com/content/posts/My%20First%20Year%20as%20a%20Developer.md)
 
