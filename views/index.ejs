@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Jesse Karjalainen</title>
+    <title><%= name %></title>
 
     <link rel="stylesheet" href="/base.css">
     <link rel="stylesheet" href="/sidebar.css">
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/markdown.css">
     <link rel="stylesheet" href="/mobile.css">
 
-    <link rel="preload" href="/profile.jpg" as="image">
+    <!-- <link rel="preload" href="/profile.jpg" as="image"> -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" id="highlightjs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
@@ -26,9 +26,11 @@
         <div class="sidebar">
             <div class="sidebar-content">
                 <div class="image-container">
-                    <img src="/profile.jpg">
+                  <% if (image) { %> <!-- Renamed from profile -->
+                      <img src="/profile-pic" alt="Profile Image"> <!-- Consider renaming the route too -->
+                  <% } %>
                 </div>
-                <h1>~ Jesse Karjalainen</h1>
+                <h1>~ <%= name %></h1>
                 <div class="navigation-buttons">
                     <%- folderStructure %>
                 </div>
@@ -44,9 +46,13 @@
                 <%- initialContent %>
             </div>
             <div class="social-links-bar">
-                <a href="https://github.com/tupakkatapa" class="social-link"><i class="fab fa-github"></i> </a>
-                <a href="https://x.com/tupakkatapa" class="social-link"><i class="fab fa-x-twitter"></i> </a>
-                <a href="https://www.linkedin.com/in/jesse-karjalainen-a7bb612b8/" class="social-link"><i class="fab fa-linkedin-in"></i> </a>
+              <% if (socialLinks && socialLinks.length > 0) { %>
+                  <% socialLinks.forEach(function(link) { %>
+                      <a href="<%= link.href %>" class="social-link">
+                          <i class="fab <%= link.fab %>"></i>
+                      </a>
+                  <% }); %>
+              <% } %>
             </div>
         </div>
     </div>

@@ -1,23 +1,25 @@
 #!/usr/bin/env node
-const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
 const MarkdownIt = require('markdown-it');
-const hljs = require('highlight.js');
+const express = require('express');
 const favicon = require('serve-favicon');
-const yaml = require('js-yaml');
+const fs = require('fs').promises;
+const hljs = require('highlight.js');
 const markdownItAnchor = require('markdown-it-anchor');
+const path = require('path');
+const yaml = require('js-yaml');
 
+const IGNORED_FILES = [];
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
-const IGNORED_FILES = ['index'];
 
 // Defaults
 let PORT = 8080;
 let HOST = '0.0.0.0';
 let CONTENTS_DIR = path.join(__dirname, 'contents');
-let URL = 'https://blog.coditon.com';
-let NAME = 'Jesse Karjalainen';
+let NAME = 'Mike Wazowski';
+let IMAGE = '';
+let SOCIAL_LINKS = [];
+
 
 // Function to parse command-line arguments
 function parseArgs() {
@@ -46,22 +48,59 @@ function parseArgs() {
             case '-p':
             case '--port':
                 if (args[i + 1]) {
-                    PORT = parseInt(args[i + 1]);
+                    PORT = parseInt(args[i + 1], 10);
                     i++;
                 }
+                break;
+            case '-n':
+            case '--name':
+                if (args[i + 1]) {
+                    NAME = args[i + 1];
+                    i++;
+                }
+                break;
+            case '--image':
+                if (args[i + 1]) {
+                    IMAGE = args[i + 1];
+                    i++;
+                }
+                break;
+            case '--social':
+                i++;
+                while (i < args.length && !args[i].startsWith('--')) {
+                    const splitIndex = args[i].indexOf(':');
+                    if (splitIndex !== -1) {
+                        const fab = args[i].substring(0, splitIndex);
+                        const href = args[i].substring(splitIndex + 1);
+                        if (fab && href) {
+                            SOCIAL_LINKS.push({ fab, href });
+                        } else {
+                            console.error(`Invalid format for --social: ${args[i]}`);
+                        }
+                    } else {
+                        console.error(`Invalid format for --social: ${args[i]}`);
+                    }
+                    i++;
+                }
+                i--; // Ensure the outer loop doesn't skip an argument
+                break;
+            default:
                 break;
         }
     }
 }
 
-// Function to display help
 function displayHelp() {
     console.log(`Usage: node [script] [options]
 Options:
-  -h, --help         Display help information
-  -d, --datadir      Set the data directory for contents (default: 'contents')
-  -a, --address      Set the host address (default: '0.0.0.0')
-  -p, --port         Set the port number (default: 8080)`);
+  -h, --help          Display this help information
+  -d, --datadir       Set the data directory for contents (default: '/var/lib/coditon-blog')
+  -a, --address       Set the host address (default: '0.0.0.0')
+  -p, --port          Set the port number (default: 8080)
+  -n, --name          Set the name displayed on the blog (default: 'Mike Wazowski')
+  --image             Set the path to the profile picture
+  --social            Add social links with icons and URLs in the format 'icon:url'
+                      (e.g., --social fa-github:https://github.com/username --social fa-x-twitter:https://x.com/username)`);
 }
 
 parseArgs();
@@ -115,6 +154,30 @@ app.use((req, res, next) => {
     next();
 });
 
+// Serve the profile image
+app.get('/profile-pic', async (req, res) => {
+    try {
+        if (!IMAGE) {
+            throw new Error('Profile picture not specified');
+        }
+        const imageData = await fs.readFile(IMAGE);
+
+        // Dynamically import the 'mime' module correctly
+        const mime = await import('mime');
+        const mimeType = mime.default.getType(IMAGE); // Correctly access getType from the imported module
+
+        if (!mimeType || !mimeType.startsWith('image/')) {
+            throw new Error('File is not an image');
+        }
+
+        res.setHeader('Content-Type', mimeType); // Set the correct Content-Type header
+        res.send(imageData);
+    } catch (err) {
+        console.error(err);
+        res.status(404).send('Image not found');
+    }
+});
+
 // Route to serve the index page
 app.get('/', async (req, res) => {
     try {
@@ -125,12 +188,16 @@ app.get('/', async (req, res) => {
 
         res.render('index', {
             folderStructure: await generateFolderStructure(CONTENTS_DIR),
-            initialContent: outputContent
+            initialContent: outputContent,
+            name: NAME,
+            image: IMAGE, // Make sure this is defined
+            socialLinks: SOCIAL_LINKS, // Correctly pass SOCIAL_LINKS
         });
     } catch (err) {
         handleError(res, err);
     }
 });
+
 
 // Log requests
 app.use((req, res, next) => {
@@ -153,7 +220,10 @@ app.get('/content/:path(*)', async (req, res) => {
             ? res.setHeader('Content-Type', 'text/html').send(outputContent)
             : res.render('index', {
                 folderStructure: await generateFolderStructure(CONTENTS_DIR),
-                initialContent: outputContent
+                initialContent: outputContent,
+                name: NAME, // Ensure this is defined
+                image: IMAGE, // Make sure this is correctly passed
+                socialLinks: SOCIAL_LINKS, // Correctly pass SOCIAL_LINKS
             });
     } catch (err) {
         handleError(res, err);
@@ -189,24 +259,23 @@ async function handleError(res, err) {
     });
 }
 
-
-// Parse Markdown file content for metadata and content, append filename as title
+// Parse Markdown file content for metadata and content
 async function parseFileContent(data, filePath) {
     const filenameWithoutExtension = path.basename(filePath, path.extname(filePath));
-    let title = '';
+    let prependTitle = true;
+    let contentWithoutFrontMatter = data.replace(/^---\n[\s\S]+?\n---\n?/, '');
+    const hasLevelOneHeader = /^#\s+|^[\s\S]*\n#\s+/.test(contentWithoutFrontMatter);
 
-    // Append title only if the filename is not in the ignored list
-    if (!IGNORED_FILES.includes(filenameWithoutExtension)) {
-        title = `# ${filenameWithoutExtension}\n`;
+    if (hasLevelOneHeader || IGNORED_FILES.includes(filenameWithoutExtension)) {
+        prependTitle = false;
     }
 
+    let title = prependTitle ? `# ${filenameWithoutExtension}\n\n` : '';
     const matches = data.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
 
     if (matches) {
         const metadata = yaml.load(matches[1]) || {};
-
         if (!metadata.date) metadata.date = await getFileDate(filePath);
-
         return { content: md.render(title + matches[2]), metadata };
     } else {
         return { content: md.render(title + data), metadata: {} };

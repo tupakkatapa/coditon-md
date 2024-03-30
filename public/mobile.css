@@ -39,7 +39,7 @@
     }
 
     .markdown-body {
-      min-width: calc(100vw - 45px - 50px - 65px);
+      min-width: calc(100vw - 150px);
     }
 
     .main .markdown-body {
