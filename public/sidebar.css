@@ -7,11 +7,14 @@
     bottom: 0;
     left: 0;
     z-index: 2;
-    display: flex;
     flex-direction: column;
     border-right: 1px solid #e1e1e1;
     transition: transform 0.5s ease;
     transform: translateX(0);
+}
+
+.sidebar .navigation-buttons a {
+    display: inline-block;
 }
 
 /* Scrollable Content Container */
@@ -52,7 +55,7 @@
 /* Sidebar List Styles */
 .sidebar ul {
     list-style: none;
-    padding-left: 30px;
+    padding-left: 50px;
     padding-right: 10px;
     margin: 0;
     font-size: 15px;
@@ -66,7 +69,6 @@
 /* Sidebar Icons and Links */
 .sidebar i {
     margin-right: 5px;
-    opacity: 0.9;
 }
 
 .sidebar li > a {
@@ -87,6 +89,7 @@
 
 .fas.fa-folder {
     cursor: pointer;
+    padding-right: 1px;
 }
 
 .fas.fa-folder-open {
@@ -102,15 +105,18 @@
 }
 
 .sidebar a {
-    color: #555;
+    color: #444;
     text-decoration: none;
     display: block;
     padding: 3px 0;
 }
 
-.sidebar a:hover {
-    color: #888;
-    background-color: #fff;
+.file-date {
+    display: block;
+    color: #666;
+    font-size: 0.8em;
+    margin-top: 2px;
+    padding-left: 5px;
 }
 
 /* Sidebar Collapsed State */
@@ -161,4 +167,3 @@
     border-radius: 50%;
     position: relative;
 }
-

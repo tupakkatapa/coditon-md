@@ -61,8 +61,8 @@ body {
 }
 
 .social-links-bar {
-    max-width: 1000px;
-    min-width: 400px;
+    max-width: 800px;
+    min-width: 200px; /*  TODO: calculate this */
     margin: 10px auto 0;
     padding: 10px 0;
     text-align: center;
@@ -77,12 +77,13 @@ body {
     transition: width 0.5s ease, margin-left 0.5s ease;
     padding: 30px;
     overflow: auto;
-    margin-left: 400px;
     width: calc(100% - 400px);
+    margin-left: 400px;
+    margin-right: auto;
 }
 
 .container.sidebar-collapsed .main {
-    margin-left: 5px;
-    width: calc(100% - 5px);
+    margin-left: 45px;
+    width: calc(100% - 45px);
 }
 

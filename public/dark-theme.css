@@ -37,6 +37,14 @@
     border: 1px solid #333
 }
 
+.dark-theme .header-anchor::after {
+    color: #eee;
+}
+
+.dark-theme .copy-button {
+    color: #eee;
+}
+
 .dark-theme .markdown-body h1,
 .dark-theme .markdown-body h2,
 .dark-theme .markdown-body h3,

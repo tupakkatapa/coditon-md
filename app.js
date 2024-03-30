@@ -238,6 +238,16 @@ function metadataToHtml(meta) {
 async function generateFolderStructure(dir, isRoot = true) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     const detailedItems = [];
+    let structure = ['<ul>'];
+
+    function generateNavigationButtons() {
+        return `
+            <li><a href="/" class="home-link">Home</a></li>
+        `;
+    }
+    if (isRoot) {
+        structure.push(generateNavigationButtons());
+    }
 
     for (const item of items) {
         if (item.name.startsWith('.')) continue;
@@ -261,10 +271,14 @@ async function generateFolderStructure(dir, isRoot = true) {
     // Sort contents by date
     detailedItems.sort((a, b) => b.date.localeCompare(a.date));
 
-    let structure = ['<ul>'];
+    // Capitalize a string
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     for (const item of detailedItems) {
         if (item.isDirectory) {
-            structure.push(`<li class="folder open"><span><i class="fas fa-folder-open"></i> ${item.name}</span>`);
+            structure.push(`<li class="folder open"><span><i class="fas fa-folder-open"></i> ${capitalize(item.name)}</span>`);
             structure.push(await generateFolderStructure(item.path, false));
         } else {
             const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');

@@ -1,7 +1,7 @@
 /* Markdown Body Base Styles */
 .markdown-body {
     max-width: 900px;
-    min-width: 400px;
+    min-width: 400px; /*  TODO: calculate this */
     margin: 0 auto;
     font-size: 16px;
     line-height: 1.6;
@@ -37,9 +37,6 @@
 }
 .header-anchor:hover::after {
     opacity: 1;
-}
-.dark-theme .header-anchor::after {
-    color: #eee;
 }
 
 /* Header Styles */
@@ -167,6 +164,3 @@
     opacity: 1;
 }
 
-.dark-theme .copy-button {
-    color: #eee;
-}

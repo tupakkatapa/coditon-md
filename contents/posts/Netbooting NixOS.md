@@ -110,7 +110,7 @@ The requirements for the bootable client, regardless of whether we are talking a
     boot
     ```
 
-    To address the issue of booting larger images, we had to slightly modify the previous format to this. Now, most of the initrd contents have been moved to a squashfs image, leaving only a minimal set of directories and executables in the initrd. This change allows the squashfs to be downloaded during the init process, bypassing the size limitation introduced by the issue. To achieve this, we need to use a [patched init script](https://github.com/majbacka-labs/nixpkgs/commits/patch-init1sh/) that introduces a `rootfs` kernel parameter. CoreOS has also adopted this approach.
+    To address the issue of booting larger images, we had to slightly modify the previous format to this. Now, most of the initrd contents have been moved to a squashfs image, leaving only a minimal set of directories and executables in the initrd. This change allows the squashfs to be downloaded during the init process, bypassing the size limitation introduced by the issue. To achieve this, we need to use a [patched init script](https://github.com/majbacka-labs/nixpkgs/commits/patch-init1sh/) that introduces a `rootfs` kernel parameter.
 
     The client has to be able to download the squashfs in Stage 1; for this, we need to make the drivers built-in to the kernel. This can be automated, but you can manually use [lspci](https://www.man7.org/linux/man-pages/man8/lspci.8.html) and [kernelconfig.io](https://www.kernelconfig.io/index.html) to get kernel module names.
 
