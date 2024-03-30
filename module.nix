@@ -7,7 +7,6 @@
 with lib; let
   cfg = config.services.coditon-blog;
   coditon-blog = pkgs.callPackage ./package.nix {};
-  formatSocial = social: "${social.fab}:${social.url}";
 in {
   options.services.coditon-blog = {
     enable = mkEnableOption "Whether to enable coditon-blog";
@@ -43,19 +42,18 @@ in {
     };
 
     socials = mkOption {
-      type = with types;
-        listOf (submodule {
-          options = {
-            fab = mkOption {
-              type = types.str;
-              description = "FontAwesome icon class for the social link.";
-            };
-            url = mkOption {
-              type = types.str;
-              description = "URL for the social link.";
-            };
+      type = types.listOf (types.submodule {
+        options = {
+          fab = mkOption {
+            type = types.str;
+            description = "FontAwesome icon class for the social link.";
           };
-        });
+          url = mkOption {
+            type = types.str;
+            description = "URL for the social link.";
+          };
+        };
+      });
       default = [];
       description = "Social media links.";
     };
@@ -81,7 +79,7 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      "d ${cfg.dataDir} 0700 ${cfg.user} ${cfg.group} - -"
     ];
 
     systemd.services.coditon-blog = {
@@ -92,18 +90,18 @@ in {
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
-        ExecStart =
-          concatStringsSep " \\\n\t" [
-            "${coditon-blog}/bin/coditon-blog"
-            "--datadir ${cfg.dataDir}"
-            "--port ${toString cfg.port}"
-            "--address ${cfg.address}"
-            "--name ${cfg.name}"
-            "--image ${cfg.image}"
-          ]
-          ++ map (social: "--social ${social.fab}:${social.url}") cfg.socials;
         Restart = "on-failure";
       };
+      script =
+        ''
+          ${coditon-blog}/bin/coditon-blog \
+          --datadir "${cfg.dataDir}" \
+          --port ${toString cfg.port} \
+          --address "${cfg.address}" \
+          --name "${cfg.name}" \
+          --image "${cfg.image}" \
+        ''
+        + (concatStringsSep " " (map (item: "--social '${item.fab}:${item.url}'") cfg.socials));
     };
 
     networking.firewall = mkIf cfg.openFirewall {

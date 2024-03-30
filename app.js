@@ -55,8 +55,8 @@ function parseArgs() {
             case '-n':
             case '--name':
                 if (args[i + 1]) {
-                    NAME = args[i + 1];
-                    i++;
+                    NAME = args.slice(i + 1).join(" ").split(" --")[0];
+                    i += NAME.split(" ").length - 1;
                 }
                 break;
             case '--image':
@@ -82,7 +82,7 @@ function parseArgs() {
                     }
                     i++;
                 }
-                i--; // Ensure the outer loop doesn't skip an argument
+                i--;
                 break;
             default:
                 break;

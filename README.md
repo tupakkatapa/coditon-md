@@ -2,7 +2,7 @@
 
 Coditon Blog is a simple yet customizable, self-hosted blog platform designed to dynamically render Markdown files as HTML content from a specified directory.
 
-I still suck at frontend, so this is mostly written with ChatGPT-4. My own instance is up and running at: https://blog.coditon.com
+My own instance is up and running at: https://blog.coditon.com
 
 ## Key Features
 
@@ -33,13 +33,13 @@ For NixOS users, Coditon Blog can be seamlessly integrated as a module:
           {
             coditon-blog = {
               enable = true;
-              dataDir = "/path/to/blog-posts";
               name = "Your Name";
+              dataDir = "/path/to/blog-posts";
               image = "/path/to/profile.jpg";
               socials = [
                 { fab = "fa-github"; url = "https://github.com/yourusername"; },
-                { fab = "fa-twitter"; url = "https://twitter.com/yourusername"; },
-                // Add more social links as needed
+                { fab = "fa-x-twitter"; url = "https://x.com/yourusername"; },
+                # Add more social links as needed
               ];
             };
           }
@@ -58,7 +58,6 @@ node app.js \
   --image "/path/to/profile.jpg" \
   --social "fa-github:https://github.com/yourusername" \
   --social "fa-twitter:https://twitter.com/yourusername"
-  // Add more social links as needed
 ```
 
 Or Nix run:
@@ -68,8 +67,7 @@ nix run github:tupakkatapa/coditon-blog# -- \
   --datadir "/path/to/blog-posts" \
   --image "/path/to/profile.jpg" \
   --social "fa-github:https://github.com/yourusername" \
-  --social "fa-twitter:https://twitter.com/yourusername"
-  // Add more social links as needed
+  --social "fa-x-twitter:https://x.com/yourusername"
 ```
 
 ## Usage
