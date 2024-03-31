@@ -158,30 +158,40 @@ app.use((req, res, next) => {
 app.get('/profile-pic', async (req, res) => {
     try {
         if (!IMAGE) {
-            throw new Error('Profile picture not specified');
+            return res.status(404).send('Image not found');
         }
         const imageData = await fs.readFile(IMAGE);
 
         // Dynamically import the 'mime' module correctly
         const mime = await import('mime');
-        const mimeType = mime.default.getType(IMAGE); // Correctly access getType from the imported module
+        const mimeType = mime.default.getType(IMAGE);
 
         if (!mimeType || !mimeType.startsWith('image/')) {
-            throw new Error('File is not an image');
+            return res.status(404).send('File is not an image');
         }
 
-        res.setHeader('Content-Type', mimeType); // Set the correct Content-Type header
+        res.setHeader('Content-Type', mimeType);
         res.send(imageData);
     } catch (err) {
-        console.error(err);
         res.status(404).send('Image not found');
     }
 });
 
+async function findIndexFile(directory) {
+    const files = await fs.readdir(directory);
+    // Filter out non-Markdown files and sort alphabetically
+    const mdFiles = files.filter(file => MD_EXTENSIONS.includes(path.extname(file).toLowerCase())).sort();
+    if (mdFiles.length === 0) {
+        throw new Error('No Markdown files found in the directory');
+    }
+    return path.join(directory, mdFiles[0]);
+}
+
 // Route to serve the index page
 app.get('/', async (req, res) => {
     try {
-        const filePath = path.join(CONTENTS_DIR, 'index.md');
+        // Use findIndexFile to dynamically get the first Markdown file
+        const filePath = await findIndexFile(CONTENTS_DIR);
         const fileContent = await fs.readFile(filePath, 'utf8');
         const { content, metadata } = await parseFileContent(fileContent, filePath);
         const outputContent = metadataToHtml(metadata) + content;
@@ -190,14 +200,13 @@ app.get('/', async (req, res) => {
             folderStructure: await generateFolderStructure(CONTENTS_DIR),
             initialContent: outputContent,
             name: NAME,
-            image: IMAGE, // Make sure this is defined
-            socialLinks: SOCIAL_LINKS, // Correctly pass SOCIAL_LINKS
+            image: IMAGE,
+            socialLinks: SOCIAL_LINKS,
         });
     } catch (err) {
         handleError(res, err);
     }
 });
-
 
 // Log requests
 app.use((req, res, next) => {
@@ -221,9 +230,9 @@ app.get('/content/:path(*)', async (req, res) => {
             : res.render('index', {
                 folderStructure: await generateFolderStructure(CONTENTS_DIR),
                 initialContent: outputContent,
-                name: NAME, // Ensure this is defined
-                image: IMAGE, // Make sure this is correctly passed
-                socialLinks: SOCIAL_LINKS, // Correctly pass SOCIAL_LINKS
+                name: NAME,
+                image: IMAGE,
+                socialLinks: SOCIAL_LINKS,
             });
     } catch (err) {
         handleError(res, err);
@@ -303,19 +312,15 @@ function metadataToHtml(meta) {
     return htmlContent;
 }
 
-// Generate the folder structure in HTML format, sorted by date, excluding ignored files
+// Generate the folder structure in HTML format, excluding ignored files and only displaying date from metadata
 async function generateFolderStructure(dir, isRoot = true) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     const detailedItems = [];
     let structure = ['<ul>'];
 
-    function generateNavigationButtons() {
-        return `
-            <li><a href="/" class="home-link">Home</a></li>
-        `;
-    }
-    if (isRoot) {
-        structure.push(generateNavigationButtons());
+    // Capitalize the first letter of a string
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     for (const item of items) {
@@ -328,21 +333,13 @@ async function generateFolderStructure(dir, isRoot = true) {
         const isDirectory = item.isDirectory();
 
         if (isDirectory) {
-            // Directories don't have a date, so we set a default that sorts them first
-            detailedItems.push({ name: item.name, path: itemPath, date: '0000-00-00', isDirectory });
-        } else if (!isRoot) {
+            detailedItems.push({ name: item.name, path: itemPath, date: '', isDirectory: true });
+        } else {
             const content = await fs.readFile(itemPath, 'utf8');
-            const date = (await parseFileContent(content, itemPath)).metadata.date || await getFileDate(itemPath);
+            const metadata = (await parseFileContent(content, itemPath)).metadata;
+            const date = metadata.date ? metadata.date : ''; // Only use date from metadata
             detailedItems.push({ name: item.name, path: itemPath, date, isDirectory: false });
         }
-    }
-
-    // Sort contents by date
-    detailedItems.sort((a, b) => b.date.localeCompare(a.date));
-
-    // Capitalize a string
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     for (const item of detailedItems) {
@@ -350,8 +347,11 @@ async function generateFolderStructure(dir, isRoot = true) {
             structure.push(`<li class="folder open"><span><i class="fas fa-folder-open"></i> ${capitalize(item.name)}</span>`);
             structure.push(await generateFolderStructure(item.path, false));
         } else {
+            const itemNameWithoutExtension = capitalize(path.basename(item.name, path.extname(item.name)));
             const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');
-            structure.push(`<li><a href="/content/${relativePath}">${item.name}</a> <span class="file-date">${item.date}</span></li>`);
+            // Conditionally display date if available
+            const dateDisplay = item.date ? `<div class="file-date">${item.date}</div>` : '';
+            structure.push(`<li><a href="/content/${relativePath}">${itemNameWithoutExtension}</a>${dateDisplay}</li>`);
         }
     }
 
