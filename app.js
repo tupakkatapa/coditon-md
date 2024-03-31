@@ -20,7 +20,6 @@ let NAME = 'Mike Wazowski';
 let IMAGE = '';
 let SOCIAL_LINKS = [];
 
-
 // Function to parse command-line arguments
 function parseArgs() {
     const args = process.argv.slice(2);
@@ -54,9 +53,13 @@ function parseArgs() {
                 break;
             case '-n':
             case '--name':
-                if (args[i + 1]) {
-                    NAME = args.slice(i + 1).join(" ").split(" --")[0];
-                    i += NAME.split(" ").length - 1;
+                if (args[i + 1] && !args[i + 1].startsWith('-')) {
+                    NAME = args[i + 1];
+                    i++;
+                    while (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+                        NAME += ` ${args[i + 1]}`;
+                        i++;
+                    }
                 }
                 break;
             case '-i':
@@ -69,7 +72,7 @@ function parseArgs() {
             case '-l':
             case '--link':
                 i++;
-                while (i < args.length && !args[i].startsWith('--')) {
+                while (i < args.length && !args[i].startsWith('-')) {
                     const splitIndex = args[i].indexOf(':');
                     if (splitIndex !== -1) {
                         const fab = args[i].substring(0, splitIndex);
@@ -77,14 +80,14 @@ function parseArgs() {
                         if (fab && href) {
                             SOCIAL_LINKS.push({ fab, href });
                         } else {
-                            console.error(`Invalid format for --social: ${args[i]}`);
+                            console.error(`Invalid format for --link: ${args[i]}`);
                         }
                     } else {
-                        console.error(`Invalid format for --social: ${args[i]}`);
+                        console.error(`Invalid format for --link: ${args[i]}`);
                     }
                     i++;
                 }
-                i--;
+                i--; // Adjust the index to correctly process the next argument in the outer loop
                 break;
             default:
                 break;
