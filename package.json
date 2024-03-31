@@ -1,5 +1,5 @@
 {
-  "name": "coditon-blog",
+  "name": "coditon-md",
   "version": "0.1.0",
   "bin": "app.js",
   "dependencies": {

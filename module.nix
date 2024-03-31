@@ -5,15 +5,15 @@
   ...
 }:
 with lib; let
-  cfg = config.services.coditon-blog;
-  coditon-blog = pkgs.callPackage ./package.nix {};
+  cfg = config.services.coditon-md;
+  coditon-md = pkgs.callPackage ./package.nix {};
 in {
-  options.services.coditon-blog = {
-    enable = mkEnableOption "Whether to enable coditon-blog";
+  options.services.coditon-md = {
+    enable = mkEnableOption "Whether to enable coditon-md";
 
     dataDir = mkOption {
       type = types.str;
-      default = "/var/lib/coditon-blog";
+      default = "/var/lib/coditon-md";
       description = "The directory where the markdown files are located.";
     };
 
@@ -31,8 +31,8 @@ in {
 
     name = mkOption {
       type = types.str;
-      default = "Jesse Karjalainen";
-      description = "The name to be displayed on the blog.";
+      default = "Mike Wazowski";
+      description = "The name to be displayed on the site.";
     };
 
     image = mkOption {
@@ -41,16 +41,16 @@ in {
       description = "Path to the profile picture.";
     };
 
-    socials = mkOption {
+    links = mkOption {
       type = types.listOf (types.submodule {
         options = {
           fab = mkOption {
             type = types.str;
-            description = "FontAwesome icon class for the social link.";
+            description = "FontAwesome icon class for the link.";
           };
           url = mkOption {
             type = types.str;
-            description = "URL for the social link.";
+            description = "URL for the link.";
           };
         };
       });
@@ -66,7 +66,7 @@ in {
 
     user = mkOption {
       type = types.str;
-      default = "coditon-blog";
+      default = "coditon";
       description = "User account under which service runs.";
     };
 
@@ -82,8 +82,7 @@ in {
       "d ${cfg.dataDir} 0700 ${cfg.user} ${cfg.group} - -"
     ];
 
-    systemd.services.coditon-blog = {
-      description = "blog.coditon.com";
+    systemd.services.coditon-md = {
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       serviceConfig = {
@@ -94,30 +93,30 @@ in {
       };
       script =
         ''
-          ${coditon-blog}/bin/coditon-blog \
+          ${coditon-md}/bin/coditon-md \
           --datadir "${cfg.dataDir}" \
           --port ${toString cfg.port} \
           --address "${cfg.address}" \
           --name "${cfg.name}" \
           --image "${cfg.image}" \
         ''
-        + (concatStringsSep " " (map (item: "--social '${item.fab}:${item.url}'") cfg.socials));
+        + (concatStringsSep " " (map (item: "--link '${item.fab}:${item.url}'") cfg.links));
     };
 
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.port];
     };
 
-    users.users = mkIf (cfg.user == "coditon-blog") {
-      "coditon-blog" = {
+    users.users = mkIf (cfg.user == "coditon") {
+      "coditon" = {
         isSystemUser = true;
         group = cfg.group;
         home = cfg.dataDir;
       };
     };
 
-    users.groups = mkIf (cfg.group == "coditon-blog") {
-      "coditon-blog" = {};
+    users.groups = mkIf (cfg.group == "coditon") {
+      "coditon" = {};
     };
   };
 }

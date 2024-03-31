@@ -1,6 +1,6 @@
-# Coditon Blog
+# Coditon-MD
 
-Simple yet customizable, self-hosted blog platform designed to dynamically render Markdown files as HTML content from a specified directory.
+Simple yet customizable, self-hosted platform designed to dynamically render Markdown files as HTML content from a specified directory.
 
 My own instance is up and running at: https://blog.coditon.com
 
@@ -14,29 +14,29 @@ My own instance is up and running at: https://blog.coditon.com
 
 ## Getting Started
 
-For NixOS users, Coditon Blog can be seamlessly integrated as a module:
+For NixOS users, this can be seamlessly integrated as a module:
 
 ```nix
 {
   inputs = {
-    coditon-blog.url = "github:tupakkatapa/blog.coditon.com";
+    coditon-md.url = "github:tupakkatapa/coditon-md";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, coditon-blog }: {
+  outputs = { self, nixpkgs, coditon-md }: {
     nixosConfigurations = {
       yourhostname = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ./configuration.nix
-          coditon-blog.nixosModules.coditon-blog
+          coditon-md.nixosModules.coditon-md
           {
-            coditon-blog = {
+            coditon-md = {
               enable = true;
               name = "Your Name";
-              dataDir = "/path/to/blog-posts";
-              image = "/path/to/profile.jpg";
-              socials = [
+              dataDir = "/path/to/content";
+              image = "/path/to/image.jpg";
+              links = [
                 { fab = "fa-github"; url = "https://github.com/yourusername"; },
                 { fab = "fa-x-twitter"; url = "https://x.com/yourusername"; },
                 # Add more social links as needed
@@ -50,29 +50,29 @@ For NixOS users, Coditon Blog can be seamlessly integrated as a module:
 }
 ```
 
-Or Nix run:
+Or with Nix run:
 ```shell
-nix run github:tupakkatapa/coditon-blog# -- \
+nix run github:tupakkatapa/coditon-md# -- \
   --name "Your Name" \
-  --datadir "/path/to/blog-posts" \
-  --image "/path/to/profile.jpg" \
-  --social "fa-github:https://github.com/yourusername" \
-  --social "fa-x-twitter:https://x.com/yourusername"
+  --datadir "/path/to/content" \
+  --image "/path/to/image.jpg" \
+  --link "fa-github:https://github.com/yourusername" \
+  --link "fa-x-twitter:https://x.com/yourusername"
 ```
 
 Of course, you can use Node.js if you are not into Nix:
 ```shell
 node app.js \
   --name "Your Name" \
-  --datadir "/path/to/blog-posts" \
-  --image "/path/to/profile.jpg" \
-  --social "fa-github:https://github.com/yourusername" \
-  --social "fa-x-twitter:https://x.com/yourusername"
+  --datadir "/path/to/content" \
+  --image "/path/to/image.jpg" \
+  --link "fa-github:https://github.com/yourusername" \
+  --link "fa-x-twitter:https://x.com/yourusername"
 ```
 
 ## Usage
 
-1. **Create Markdown Files**: Place your Markdown (.md) files in the specified `dataDir`. Each file represents a blog post or page.
+1. **Create Markdown Files**: Place your Markdown (.md) files in the specified `dataDir`. Each file represents a post or page.
 
     Note: A level 1 title is automatically appended from the Markdown filename if a header does not exist.
 
@@ -86,7 +86,7 @@ node app.js \
     ---
     ```
 
-3. **Access Your Blog**: Once Coditon Blog is running, visit `http://localhost:8080` (or your configured address) to see your blog live.
+3. **Viewing Your Site**: Once you get this up and running, visit `http://localhost:8080` or your configured address.
 
 ## Upcoming features
 

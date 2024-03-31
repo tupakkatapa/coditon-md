@@ -59,13 +59,15 @@ function parseArgs() {
                     i += NAME.split(" ").length - 1;
                 }
                 break;
+            case '-i':
             case '--image':
                 if (args[i + 1]) {
                     IMAGE = args[i + 1];
                     i++;
                 }
                 break;
-            case '--social':
+            case '-l':
+            case '--link':
                 i++;
                 while (i < args.length && !args[i].startsWith('--')) {
                     const splitIndex = args[i].indexOf(':');
@@ -94,13 +96,13 @@ function displayHelp() {
     console.log(`Usage: node [script] [options]
 Options:
   -h, --help          Display this help information
-  -d, --datadir       Set the data directory for contents (default: '/var/lib/coditon-blog')
+  -d, --datadir       Set the data directory for contents (default: './contents')
   -a, --address       Set the host address (default: '0.0.0.0')
   -p, --port          Set the port number (default: 8080)
-  -n, --name          Set the name displayed on the blog (default: 'Mike Wazowski')
-  --image             Set the path to the profile picture
-  --social            Add social links with icons and URLs in the format 'icon:url'
-                      (e.g., --social fa-github:https://github.com/username --social fa-x-twitter:https://x.com/username)`);
+  -n, --name          Set the name displayed on the site (default: 'Mike Wazowski')
+  -i, --image         Set the path to the profile picture
+  -l, --link          Add link with icon and URL in the format 'icon:url'
+                      (e.g., --link fa-github:https://github.com/username --link fa-x-twitter:https://x.com/username)`);
 }
 
 parseArgs();

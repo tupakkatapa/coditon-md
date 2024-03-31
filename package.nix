@@ -1,6 +1,6 @@
 {pkgs}:
 pkgs.mkYarnPackage {
-  name = "coditon-blog";
+  name = "coditon-md";
   version = "0.1.0";
 
   src = ./.;
