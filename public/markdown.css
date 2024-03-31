@@ -126,21 +126,24 @@
     color: #555;
     font-size: 14px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
 
-.meta-author,
-.meta-title,
-.meta-date {
-    flex: 1;
-    text-align: left;
-}
 .meta-title {
-    text-align: center;
+    text-align: left;
+    flex: 1;
 }
+
+.meta-author {
+    text-align: center;
+    flex: 1;
+}
+
 .meta-date {
     text-align: right;
+    flex: 1;
 }
 
 /* Code Wrapper and Copy Button Styles */

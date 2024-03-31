@@ -297,7 +297,7 @@ async function getFileDate(filePath) {
 function metadataToHtml(meta) {
     let htmlContent = '<div class="metadata">';
     METADATA_FIELDS.forEach(field => {
-        htmlContent += `<span class="meta-${field}">${meta[field] || '&nbsp;'}</span>`;
+        htmlContent += `<span class="meta-${field} ${field}">${meta[field] || '&nbsp;'}</span>`;
     });
     htmlContent += '</div>';
     return htmlContent;
