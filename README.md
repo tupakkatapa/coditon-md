@@ -91,7 +91,6 @@ node app.js \
 
 ## Upcoming features
 
-- RSS feed generation
 - Downloadable content
 - Support for PDF
 

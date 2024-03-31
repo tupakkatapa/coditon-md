@@ -7,6 +7,7 @@ const hljs = require('highlight.js');
 const markdownItAnchor = require('markdown-it-anchor');
 const path = require('path');
 const yaml = require('js-yaml');
+const RSS = require('rss');
 
 const IGNORED_FILES = [];
 const MD_EXTENSIONS = ['.md', '.txt'];
@@ -244,6 +245,72 @@ app.get('/content/:path(*)', async (req, res) => {
             });
     } catch (err) {
         handleError(res, err);
+    }
+});
+
+// Utility function to generate RSS feed
+async function generateRSSFeed() {
+    const feed = new RSS({
+        title: NAME,
+        description: "RSS feed for " + NAME + "'s content",
+        feed_url: `http://${HOST}:${PORT}/rss.xml`,
+        site_url: `http://${HOST}:${PORT}`,
+        image_url: IMAGE,
+        managingEditor: 'editor@example.com',
+        webMaster: 'webmaster@example.com',
+        language: 'en',
+        pubDate: new Date().toString(),
+        ttl: '60'
+    });
+
+    // Recursive function to find markdown files in all subdirectories
+    async function findMarkdownFiles(directory) {
+        const entries = await fs.readdir(directory, { withFileTypes: true });
+        for (const entry of entries) {
+            const fullPath = path.join(directory, entry.name);
+            if (entry.isDirectory()) {
+                await findMarkdownFiles(fullPath); // Recurse into subdirectories
+            } else if (MD_EXTENSIONS.includes(path.extname(entry.name).toLowerCase())) {
+                await processMarkdownFile(fullPath, entry.name);
+            }
+        }
+    }
+
+    // Inside processMarkdownFile function, update to include categories
+    async function processMarkdownFile(filePath, fileName) {
+        const content = await fs.readFile(filePath, 'utf8');
+        const {metadata} = await parseFileContent(content, filePath);
+        let title = metadata.title || fileName.replace(/\..+$/, '').split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        const relativePath = path.relative(CONTENTS_DIR, filePath).split(path.sep).join('/'); // Normalize path for URLs
+
+        // Determine category from the file path
+        const category = path.dirname(relativePath).split('/').filter(Boolean); // Splits the path and filters out empty values
+
+        feed.item({
+            title: title,
+            description: metadata.description || 'A new content piece is available.',
+            url: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
+            author: metadata.author,
+            date: metadata.date,
+            guid: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
+            categories: category.length > 0 ? [category.join(' > ')] : [], // Join categories with ' > ' if subdirectories are present
+        });
+    }
+
+    await findMarkdownFiles(CONTENTS_DIR);
+
+    return feed.xml({indent: true});
+}
+
+// Route to serve the RSS feed
+app.get('/rss.xml', async (req, res) => {
+    try {
+        const rss = await generateRSSFeed();
+        res.header('Content-Type', 'application/rss+xml');
+        res.send(rss);
+    } catch (err) {
+        console.error('Failed to generate RSS feed:', err);
+        res.status(500).send('Failed to generate RSS feed.');
     }
 });
 

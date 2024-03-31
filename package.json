@@ -23,6 +23,7 @@
     "markdown-it-sub": "^1.0.0",
     "mime": "^4.0.1",
     "pica": "^9.0.1",
+    "rss": "^1.2.2",
     "serve-favicon": "^2.5.0"
   }
 }
