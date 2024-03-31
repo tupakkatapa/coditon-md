@@ -1,6 +1,6 @@
 # Coditon Blog
 
-Coditon Blog is a simple yet customizable, self-hosted blog platform designed to dynamically render Markdown files as HTML content from a specified directory.
+Simple yet customizable, self-hosted blog platform designed to dynamically render Markdown files as HTML content from a specified directory.
 
 My own instance is up and running at: https://blog.coditon.com
 
@@ -50,19 +50,19 @@ For NixOS users, Coditon Blog can be seamlessly integrated as a module:
 }
 ```
 
-Of course, you can use Node.js if you are not into Nix:
+Or Nix run:
 ```shell
-node app.js \
+nix run github:tupakkatapa/coditon-blog# -- \
   --name "Your Name" \
   --datadir "/path/to/blog-posts" \
   --image "/path/to/profile.jpg" \
   --social "fa-github:https://github.com/yourusername" \
-  --social "fa-twitter:https://twitter.com/yourusername"
+  --social "fa-x-twitter:https://x.com/yourusername"
 ```
 
-Or Nix run:
+Of course, you can use Node.js if you are not into Nix:
 ```shell
-nix run github:tupakkatapa/coditon-blog# -- \
+node app.js \
   --name "Your Name" \
   --datadir "/path/to/blog-posts" \
   --image "/path/to/profile.jpg" \
