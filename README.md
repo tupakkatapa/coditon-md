@@ -74,7 +74,8 @@ node app.js \
 
 1. **Create Markdown Files**: Place your Markdown (.md) files in the specified `dataDir`. Each file represents a post or page.
 
-    Note: A level 1 title is automatically appended from the Markdown filename if a header does not exist.
+    - A level 1 title is automatically appended from the Markdown filename if a header does not exist.
+    - The index page is automatically the alphabetically first supported file in the data directory.
 
 2. **Metadata Configuration**: Optionally, include YAML metadata at the beginning of your Markdown files to specify the title, author, and date. For example:
 
