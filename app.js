@@ -184,12 +184,15 @@ app.get('/profile-pic', async (req, res) => {
 
 async function findIndexFile(directory) {
     const files = await fs.readdir(directory);
-    // Filter out non-Markdown files and sort alphabetically
-    const mdFiles = files.filter(file => MD_EXTENSIONS.includes(path.extname(file).toLowerCase())).sort();
-    if (mdFiles.length === 0) {
-        throw new Error('No Markdown files found in the directory');
+    const validFiles = files.filter(file =>
+        !file.startsWith('.') &&
+        MD_EXTENSIONS.includes(path.extname(file).toLowerCase())
+    ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+    if (validFiles.length === 0) {
+        throw new Error('No valid files found in the directory');
     }
-    return path.join(directory, mdFiles[0]);
+    return path.join(directory, validFiles[0]);
 }
 
 // Route to serve the index page
@@ -280,11 +283,18 @@ async function parseFileContent(data, filePath) {
     let contentWithoutFrontMatter = data.replace(/^---\n[\s\S]+?\n---\n?/, '');
     const hasLevelOneHeader = /^#\s+|^[\s\S]*\n#\s+/.test(contentWithoutFrontMatter);
 
-    if (hasLevelOneHeader || IGNORED_FILES.includes(filenameWithoutExtension)) {
+    if (hasLevelOneHeader || IGNORED_FILES.includes(filenameWithoutExtension.toLowerCase())) {
         prependTitle = false;
     }
 
-    let title = prependTitle ? `# ${filenameWithoutExtension}\n\n` : '';
+    // Function to capitalize the first letter of each word in the filename
+    function capitalizeFilename(filename) {
+        return filename.split(' ')
+                       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                       .join(' ');
+    }
+
+    let title = prependTitle ? `# ${capitalizeFilename(filenameWithoutExtension.replace(/[-_]/g, ' '))}\n\n` : '';
     const matches = data.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
 
     if (matches) {
@@ -321,6 +331,7 @@ function metadataToHtml(meta) {
 async function generateFolderStructure(dir, isRoot = true) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     const detailedItems = [];
+    const ascendingDate = false;
     let structure = ['<ul>'];
 
     // Capitalize the first letter of a string
@@ -328,25 +339,69 @@ async function generateFolderStructure(dir, isRoot = true) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    // Check if a directory is valid recursively
+    async function isDirectoryValid(dirPath) {
+        const dirItems = await fs.readdir(dirPath, { withFileTypes: true });
+
+        for (const item of dirItems) {
+            if (!item.name.startsWith('.')) {
+                const itemPath = path.join(dirPath, item.name);
+                if (item.isDirectory()) {
+                    if (await isDirectoryValid(itemPath)) {
+                        return true;
+                    }
+                } else if (MD_EXTENSIONS.includes(path.extname(item.name))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     for (const item of items) {
         if (item.name.startsWith('.')) continue;
         const itemBaseName = path.basename(item.name, path.extname(item.name)).toLowerCase();
         if (IGNORED_FILES.includes(itemBaseName)) continue; // Skip ignored files
-        if (!MD_EXTENSIONS.includes(path.extname(item.name)) && !isRoot) continue;
 
         const itemPath = path.join(dir, item.name);
         const isDirectory = item.isDirectory();
 
+        if (!isDirectory && !MD_EXTENSIONS.includes(path.extname(item.name))) continue;
+
         if (isDirectory) {
-            detailedItems.push({ name: item.name, path: itemPath, date: '', isDirectory: true });
+            if (!(await isDirectoryValid(itemPath))) continue;
+            const content = await generateFolderStructure(itemPath, false);
+            if (content.trim() === '<ul></ul>') continue;
+            detailedItems.push({ name: item.name, path: itemPath, date: '', isDirectory: true, content });
         } else {
+            if (!MD_EXTENSIONS.includes(path.extname(item.name))) continue;
             const content = await fs.readFile(itemPath, 'utf8');
             const metadata = (await parseFileContent(content, itemPath)).metadata;
-            const date = metadata.date ? metadata.date : ''; // Only use date from metadata
+            const date = metadata.date ? metadata.date : '';
             detailedItems.push({ name: item.name, path: itemPath, date, isDirectory: false });
         }
     }
 
+    // Sort detailedItems: files by date, then directories alphabetically
+    detailedItems.sort((a, b) => {
+        if (!a.isDirectory && !b.isDirectory) {
+            if (!a.date || !b.date) return a.name.localeCompare(b.name);
+            if (ascendingDate) {
+                return a.date.localeCompare(b.date);
+            } else {
+                return b.date.localeCompare(a.date);
+            }
+        }
+
+        // Files always come before directories
+        if (!a.isDirectory && b.isDirectory) return -1;
+        if (a.isDirectory && !b.isDirectory) return 1;
+
+        // Both items are directories, sort alphabetically
+        return a.name.localeCompare(b.name);
+    });
+
+    // Construct the structure
     for (const item of detailedItems) {
         if (item.isDirectory) {
             structure.push(`<li class="folder open"><span><i class="fas fa-folder-open"></i> ${capitalize(item.name)}</span>`);
