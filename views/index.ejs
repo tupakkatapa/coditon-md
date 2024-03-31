@@ -58,29 +58,6 @@
     </div>
 
     <script>
-        const currentTheme = localStorage.getItem('theme');
-        const themeToggle = document.getElementById("darkModeToggle");
-
-        if (currentTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            document.getElementById('highlightjs-light').disabled = true;
-            document.getElementById('highlightjs-dark').disabled = false;
-        }
-
-        themeToggle.addEventListener("change", () => {
-            if (themeToggle.checked) {
-                document.body.classList.add("dark-theme");
-                localStorage.setItem("theme", "dark");
-                document.getElementById("highlightjs-light").disabled = true;
-                document.getElementById("highlightjs-dark").disabled = false;
-            } else {
-                document.body.classList.remove("dark-theme");
-                localStorage.setItem("theme", "light");
-                document.getElementById("highlightjs-light").disabled = false;
-                document.getElementById("highlightjs-dark").disabled = true;
-            }
-        });
-
         function navigateContents() {
             const sidebarContent = document.querySelector('.sidebar-content');
             sidebarContent.scrollTop = 0;
@@ -158,8 +135,41 @@
             const sidebar = document.querySelector('.sidebar');
             const container = document.querySelector('.container');
             const collapseBtn = document.getElementById('collapseSidebar');
+
+            const themeToggle = document.getElementById("darkModeToggle");
+            let currentTheme = localStorage.getItem('theme');
+
             let touchStartX = 0;
             let touchEndX = 0;
+
+            // Set dark theme as default if no preference is stored
+            if (currentTheme === null) {
+                currentTheme = 'dark';
+                localStorage.setItem('theme', 'dark');
+            }
+
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('highlightjs-light').disabled = true;
+                document.getElementById('highlightjs-dark').disabled = false;
+                themeToggle.checked = true; // Ensure the toggle is in the correct position
+            } else {
+                themeToggle.checked = false; // Ensure the toggle is in the correct position for light theme
+            }
+
+            themeToggle.addEventListener("change", () => {
+                if (themeToggle.checked) {
+                    document.body.classList.add("dark-theme");
+                    localStorage.setItem("theme", "dark");
+                    document.getElementById("highlightjs-light").disabled = true;
+                    document.getElementById("highlightjs-dark").disabled = false;
+                } else {
+                    document.body.classList.remove("dark-theme");
+                    localStorage.setItem("theme", "light");
+                    document.getElementById("highlightjs-light").disabled = false;
+                    document.getElementById("highlightjs-dark").disabled = true;
+                }
+            });
 
             const setCollapseButtonRotation = () => {
                 if (sidebar.classList.contains('collapsed')) {
