@@ -377,9 +377,13 @@ async function parseFileContent(data, filePath) {
     const filenameWithoutExtension = path.basename(filePath, path.extname(filePath));
     let prependTitle = true;
     let contentWithoutFrontMatter = data.replace(/^---\n[\s\S]+?\n---\n?/, '');
-    const hasLevelOneHeader = /^#\s+|^[\s\S]*\n#\s+/.test(contentWithoutFrontMatter);
 
-    if (hasLevelOneHeader || IGNORED_FILES.includes(filenameWithoutExtension.toLowerCase())) {
+    // Check for a level 1 header only before the first level 2 header
+    const firstLevelTwoHeaderIndex = contentWithoutFrontMatter.indexOf('## ');
+    const contentBeforeFirstLevelTwoHeader = contentWithoutFrontMatter.slice(0, firstLevelTwoHeaderIndex);
+    const hasLevelOneHeaderBeforeFirstLevelTwo = /^#\s+/.test(contentBeforeFirstLevelTwoHeader);
+
+    if (hasLevelOneHeaderBeforeFirstLevelTwo || IGNORED_FILES.includes(filenameWithoutExtension.toLowerCase())) {
         prependTitle = false;
     }
 
