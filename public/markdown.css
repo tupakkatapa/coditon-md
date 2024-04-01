@@ -13,6 +13,19 @@
     padding-right: 75px;
     border-radius: 10px;
     border: 1px solid #e1e1e1;
+    position: relative;
+}
+
+.download-icon {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    color: #007bff; /* Adjust color as needed */
+    text-decoration: none;
+}
+
+.download-icon:hover {
+    color: #0056b3; /* Darker shade for hover effect, adjust as needed */
 }
 
 /* Anchor Styles */

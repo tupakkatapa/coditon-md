@@ -160,6 +160,28 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/download/:path(*)', async (req, res) => {
+    const filePath = path.join(CONTENTS_DIR, req.params.path);
+    if (!MD_EXTENSIONS.includes(path.extname(filePath).toLowerCase())) {
+        return res.status(400).send('Unsupported file type.');
+    }
+
+    try {
+        // Use fs.access to check if the file exists
+        await fs.access(filePath, fs.constants.F_OK);
+        res.download(filePath); // Proceed to download the file
+    } catch (err) {
+        if (err.code === "ENOENT") {
+            // File does not exist
+            res.status(404).send('File not found.');
+        } else {
+            // Other errors
+            console.error('Error downloading file:', err);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
 // Serve the profile image
 app.get('/profile-pic', async (req, res) => {
     try {
@@ -205,12 +227,17 @@ app.get('/', async (req, res) => {
         const { content, metadata } = await parseFileContent(fileContent, filePath);
         const outputContent = metadataToHtml(metadata) + content;
 
+        // Extract the relative path for the download link
+        // Assuming CONTENTS_DIR is the base directory and filePath is absolute
+        const relativePath = filePath.substring(CONTENTS_DIR.length);
+
         res.render('index', {
             folderStructure: await generateFolderStructure(CONTENTS_DIR),
             initialContent: outputContent,
             name: NAME,
             image: IMAGE,
             socialLinks: SOCIAL_LINKS,
+            relativePath: relativePath, // Pass this for the download link
         });
     } catch (err) {
         handleError(res, err);
@@ -233,6 +260,7 @@ app.get('/content/:path(*)', async (req, res) => {
     try {
         const { content, metadata } = await parseFileContent(await fs.readFile(filePath, 'utf8'), filePath);
         const outputContent = metadataToHtml(metadata) + content;
+        const relativePath = path.relative(CONTENTS_DIR, filePath);
 
         req.isAjaxRequest
             ? res.setHeader('Content-Type', 'text/html').send(outputContent)
@@ -242,6 +270,7 @@ app.get('/content/:path(*)', async (req, res) => {
                 name: NAME,
                 image: IMAGE,
                 socialLinks: SOCIAL_LINKS,
+                relativePath: relativePath // Correctly pass relativePath here
             });
     } catch (err) {
         handleError(res, err);

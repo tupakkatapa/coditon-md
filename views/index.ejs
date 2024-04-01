@@ -44,6 +44,11 @@
         <div class="main">
             <div id="file-content" class="markdown-body">
                 <%- initialContent %>
+                <% if (typeof relativePath !== 'undefined') { %>
+                    <a href="/download/<%= relativePath %>" class="download-button download-icon">
+                        <i class="fa fa-download"></i>
+                    </a>
+                <% } %>
             </div>
             <div class="social-links-bar">
               <% if (socialLinks && socialLinks.length > 0) { %>
