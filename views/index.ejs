@@ -34,10 +34,6 @@
                 <div class="navigation-buttons">
                     <%- folderStructure %>
                 </div>
-                <div class="theme-toggle">
-                    <input type="checkbox" id="darkModeToggle">
-                    <label for="darkModeToggle"></label>
-                </div>
                 <button class="arrow-btn" id="collapseSidebar">⟨</button>
             </div>
         </div>
@@ -49,6 +45,12 @@
                         <i class="fa fa-download"></i>
                     </a>
                 <% } %>
+                <a href="/rss.xml" class="rss-button rss-icon">
+                    <i class="fa fa-rss"></i>
+                </a>
+                <div class="theme-toggle-icon">
+                    <i id="themeToggleIcon" class="fa-solid fa-circle-half-stroke"></i>
+                </div>
             </div>
             <div class="social-links-bar">
               <% if (socialLinks && socialLinks.length > 0) { %>
@@ -63,177 +65,39 @@
     </div>
 
     <script>
-        function navigateContents() {
-            const sidebarContent = document.querySelector('.sidebar-content');
-            sidebarContent.scrollTop = 0;
-        }
-
-        function addCopyButtons() {
-            const codeBlocks = document.querySelectorAll('.markdown-body pre code');
-            codeBlocks.forEach(block => {
-                const parent = block.parentNode;
-                if (parent.querySelector('.copy-button')) return;
-                const copyButton = document.createElement('button');
-                copyButton.className = 'copy-button';
-                copyButton.textContent = 'Copy';
-
-                copyButton.addEventListener('click', () => {
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.textContent = block.textContent;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempTextArea);
-                    copyButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyButton.textContent = 'Copy';
-                    }, 2000);
-                });
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'code-wrapper';
-                parent.replaceChild(wrapper, block);
-                wrapper.appendChild(block);
-                wrapper.appendChild(copyButton);
-            });
-        }
-
-        function toggleContents() {
-            const contentsList = document.querySelector('.sidebar ul');
-            const contentsButtonIcon = document.getElementById('contentsButton').querySelector('i');
-
-            const isListVisible = contentsList.style.display !== 'none';
-
-            if (isListVisible) {
-                contentsButtonIcon.classList.remove('fa-folder-open');
-                contentsButtonIcon.classList.add('fa-folder');
-                contentsList.style.display = 'none';
-            } else {
-                contentsButtonIcon.classList.add('fa-folder-open');
-                contentsButtonIcon.classList.remove('fa-folder');
-                contentsList.style.display = 'block';
-            }
-        }
-
-        function setupFolderToggles() {
-            document.querySelectorAll('.sidebar .folder > span').forEach(folderSpan => {
-                folderSpan.addEventListener('click', function() {
-                    const listItem = this.parentElement;
-                    const sublist = listItem.querySelector('ul');
-                    const folderIcon = this.querySelector('i');
-                    const isOpen = listItem.classList.contains('open');
-
-                    listItem.classList.toggle('open');
-                    folderIcon.classList.toggle('fa-folder-open');
-                    folderIcon.classList.toggle('fa-folder');
-
-                    if (listItem.classList.contains('open')) {
-                        sublist.style.maxHeight = sublist.scrollHeight + "px";
-                    } else {
-                        sublist.style.maxHeight = 0;
-                    }
-                });
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
+
+            // Theme
+            const themeToggleIcon = document.getElementById("themeToggleIcon");
+            themeToggleIcon.addEventListener("click", () => {
+                const isCurrentlyDark = document.body.classList.contains("dark-theme");
+                const newTheme = isCurrentlyDark ? "light" : "dark";
+                document.body.classList.toggle("dark-theme", !isCurrentlyDark);
+                localStorage.setItem("theme", newTheme);
+                document.getElementById("highlightjs-light").disabled = !isCurrentlyDark;
+                document.getElementById("highlightjs-dark").disabled = isCurrentlyDark;
+            });
+
+            const preferredTheme = localStorage.getItem("theme") || "dark";
+            document.body.classList.toggle("dark-theme", preferredTheme === "dark");
+            document.getElementById("highlightjs-light").disabled = preferredTheme === "dark";
+            document.getElementById("highlightjs-dark").disabled = preferredTheme !== "dark";
+
+            // Button
+            const collapseBtn = document.getElementById('collapseSidebar');
             const sidebar = document.querySelector('.sidebar');
             const container = document.querySelector('.container');
-            const collapseBtn = document.getElementById('collapseSidebar');
 
-            const themeToggle = document.getElementById("darkModeToggle");
-            let currentTheme = localStorage.getItem('theme');
-
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            // Set dark theme as default if no preference is stored
-            if (currentTheme === null) {
-                currentTheme = 'dark';
-                localStorage.setItem('theme', 'dark');
-            }
-
-            if (currentTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                document.getElementById('highlightjs-light').disabled = true;
-                document.getElementById('highlightjs-dark').disabled = false;
-                themeToggle.checked = true; // Ensure the toggle is in the correct position
-            } else {
-                themeToggle.checked = false; // Ensure the toggle is in the correct position for light theme
-            }
-
-            themeToggle.addEventListener("change", () => {
-                if (themeToggle.checked) {
-                    document.body.classList.add("dark-theme");
-                    localStorage.setItem("theme", "dark");
-                    document.getElementById("highlightjs-light").disabled = true;
-                    document.getElementById("highlightjs-dark").disabled = false;
-                } else {
-                    document.body.classList.remove("dark-theme");
-                    localStorage.setItem("theme", "light");
-                    document.getElementById("highlightjs-light").disabled = false;
-                    document.getElementById("highlightjs-dark").disabled = true;
-                }
-            });
-
-            const setCollapseButtonRotation = () => {
-                if (sidebar.classList.contains('collapsed')) {
-                    collapseBtn.style.transform = 'rotate(180deg)';
-                } else {
-                    collapseBtn.style.transform = 'rotate(0deg)';
-                }
-            };
-
-            const toggleSidebar = () => {
+            collapseBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('collapsed');
                 container.classList.toggle('sidebar-collapsed');
                 document.body.classList.toggle('no-scroll', !sidebar.classList.contains('collapsed'));
-                setCollapseButtonRotation();
-            };
+                collapseBtn.style.transform = sidebar.classList.contains('collapsed') ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
 
-            const addCopyButtons = () => {
-                const codeBlocks = document.querySelectorAll('.markdown-body pre code');
-                codeBlocks.forEach(block => {
-                    const parent = block.parentNode;
-                    if (!parent.classList.contains('code-wrapper')) {
-                        const copyButton = document.createElement('button');
-                        copyButton.className = 'copy-button';
-                        copyButton.textContent = 'Copy';
-                        copyButton.addEventListener('click', () => {
-                            navigator.clipboard.writeText(block.textContent).then(() => {
-                                copyButton.textContent = 'Copied!';
-                                setTimeout(() => {
-                                    copyButton.textContent = 'Copy';
-                                }, 2000);
-                            });
-                        });
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'code-wrapper';
-                        parent.replaceChild(wrapper, block);
-                        wrapper.appendChild(block);
-                        wrapper.appendChild(copyButton);
-                    }
-                });
-            };
-
-            const setupFolderToggles = () => {
-                document.querySelectorAll('.sidebar .folder > span').forEach(folderSpan => {
-                    folderSpan.addEventListener('click', function() {
-                        const listItem = this.parentElement;
-                        const sublist = listItem.querySelector('ul');
-                        const folderIcon = this.querySelector('i');
-                        listItem.classList.toggle('open');
-                        if (listItem.classList.contains('open')) {
-                            sublist.style.maxHeight = sublist.scrollHeight + "px";
-                            folderIcon.classList.replace('fa-folder', 'fa-folder-open');
-                        } else {
-                            sublist.style.maxHeight = 0;
-                            folderIcon.classList.replace('fa-folder-open', 'fa-folder');
-                        }
-                    });
-                });
-            };
+            // Swipe
+            let touchStartX = 0;
+            let touchEndX = 0;
 
             document.body.addEventListener('touchstart', e => {
                 touchStartX = e.changedTouches[0].screenX;
@@ -242,65 +106,65 @@
             document.body.addEventListener('touchend', e => {
                 touchEndX = e.changedTouches[0].screenX;
                 const threshold = 75;
-                if (touchEndX > touchStartX + threshold && touchStartX < 50) {
-                    if (sidebar.classList.contains('collapsed')) toggleSidebar();
+                if (touchEndX > touchStartX + threshold && touchStartX < 50 && sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.toggle('collapsed');
+                    container.classList.toggle('sidebar-collapsed');
                 } else if (touchEndX < touchStartX - threshold && !sidebar.classList.contains('collapsed')) {
-                    toggleSidebar();
+                    sidebar.classList.toggle('collapsed');
+                    container.classList.toggle('sidebar-collapsed');
                 }
             });
 
-            collapseBtn.addEventListener('click', toggleSidebar);
-
-            if (window.innerWidth <= 768) {
-                if (!sidebar.classList.contains('collapsed')) {
-                    toggleSidebar();
-                }
+            // Auto collapse
+            if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed');
+                container.classList.add('sidebar-collapsed');
             }
 
             addCopyButtons();
             setupFolderToggles();
-            setCollapseButtonRotation();
         });
 
-        function collapseSidebarIfExpanded() {
-            if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
-                sidebar.classList.add('collapsed');
-                document.querySelector('.container').classList.add('sidebar-collapsed');
-                setCollapseButtonRotation();
-            }
-        }
-
-        const fileLinks = document.querySelectorAll('.sidebar a');
-        fileLinks.forEach(link => {
-            const text = link.textContent.trim();
-            const cleanedText = text.replace(/\..+$/, '');
-            link.textContent = cleanedText;
-        });
-
-        function setupLevel1HeaderClicks() {
-            document.querySelectorAll('#file-content h1').forEach(header => {
-                const currentPath = window.location.pathname;
-                if (currentPath !== '/') {
-                    header.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        window.history.pushState({}, '', currentPath);
-                        $.ajax({
-                            url: currentPath,
-                            success: function(data) {
-                                $("#file-content").html(data);
-                                addCopyButtons();
-                                setupLevel1HeaderClicks();
-                            }
+        function addCopyButtons() {
+            const codeBlocks = document.querySelectorAll('.markdown-body pre code');
+            codeBlocks.forEach(block => {
+                const parent = block.parentNode;
+                if (!parent.classList.contains('code-wrapper')) {
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-button';
+                    copyButton.textContent = 'Copy';
+                    copyButton.addEventListener('click', () => {
+                        navigator.clipboard.writeText(block.textContent).then(() => {
+                            copyButton.textContent = 'Copied!';
+                            setTimeout(() => {
+                                copyButton.textContent = 'Copy';
+                            }, 2000);
                         });
                     });
-                } else {
-                    header.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        window.scrollTo(0, 0);
-                    });
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'code-wrapper';
+                    parent.replaceChild(wrapper, block);
+                    wrapper.appendChild(block);
+                    wrapper.appendChild(copyButton);
                 }
+            });
+        }
+
+        function setupFolderToggles() {
+            document.querySelectorAll('.sidebar .folder > span').forEach(folderSpan => {
+                folderSpan.addEventListener('click', function() {
+                    const listItem = this.parentElement;
+                    const sublist = listItem.querySelector('ul');
+                    listItem.classList.toggle('open');
+                    sublist.style.maxHeight = listItem.classList.contains('open') ? sublist.scrollHeight + "px" : 0;
+                    const folderIcon = this.querySelector('i');
+                    folderIcon.classList.toggle('fa-folder', !listItem.classList.contains('open'));
+                    folderIcon.classList.toggle('fa-folder-open', listItem.classList.contains('open'));
+                });
             });
         }
     </script>
 </body>
+
 </html>

@@ -10,7 +10,9 @@ My own instance is up and running at: https://blog.coditon.com
 - Parses YAML metadata, including title, author, and publication date
 - Easily customizable via NixOS module or CLI
 - Syntax highlighting and a bunch of other markdown-it plugins
+- Supports both dark and light themes for user preference
 - Fully responsive layout that looks great on both desktop and mobile devices
+- Provides an RSS feed and article downloads
 
 ## Getting Started
 
@@ -88,9 +90,4 @@ node app.js \
     ```
 
 3. **Viewing Your Site**: Once you get this up and running, visit `http://localhost:8080` or your configured address.
-
-## Upcoming features
-
-- Downloadable content
-- Support for PDF
 

@@ -4,6 +4,12 @@
     color: #fff;
 }
 
+.dark-theme .theme-toggle-icon,
+.dark-theme .download-icon,
+.dark-theme .rss-icon {
+    color: #333 !important;
+}
+
 /* Sidebar Styles in Dark Theme */
 .dark-theme .sidebar {
     background-color: #1f1f1f;
@@ -18,7 +24,7 @@
   color: #eee
 }
 .dark-theme .social-links-bar {
-    border-top: 1px solid #2A2A2A;
+    border-top: 1px solid #333;
 }
 
 .dark-theme .sidebar .image-container img {
@@ -90,6 +96,11 @@
 
 .dark-theme .markdown-body tr:nth-child(even) {
     background-color: #2a2a2a;
+}
+
+/* Metadata Styles */
+.metadata {
+    color: #aaa;
 }
 
 /* Additional Dark Theme Styles */

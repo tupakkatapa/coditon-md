@@ -16,40 +16,30 @@
     position: relative;
 }
 
-.download-icon {
-    position: absolute;
-    bottom: 10px; /* Adjust as needed */
-    right: 10px; /* Adjust as needed */
-    color: #007bff; /* Adjust color as needed */
+/* Buttons */
+.download-icon, .rss-icon, .theme-toggle-icon {
+    color: #e1e1e1 !important;
     text-decoration: none;
-}
-
-.download-icon:hover {
-    color: #0056b3; /* Darker shade for hover effect, adjust as needed */
-}
-
-/* Anchor Styles */
-.header-anchor {
-    position: relative;
-    display: inline-block;
-    margin-left: 8px;
-}
-.header-anchor::after {
-    content: '\f0c1';
-    font-family: 'FontAwesome';
+    bottom: 10px;
     position: absolute;
-    top: 0;
-    right: -25px;
-    z-index: 10;
-    background-color: transparent;
-    color: #444;
-    border: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    font-size: 16px;
 }
-.header-anchor:hover::after {
-    opacity: 1;
+
+.theme-toggle-icon {
+    right: 65px;
+}
+.theme-toggle-icon i, .theme-toggle-icon {
+    cursor: pointer;
+}
+#themeToggleIcon {
+    cursor: pointer;
+}
+
+.download-icon {
+    right: 15px;
+}
+
+.rss-icon {
+    right: 40px;
 }
 
 /* Header Styles */
@@ -121,7 +111,7 @@
 .markdown-body td {
     padding: 8px 12px;
     text-align: left;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e1e1e1;
 }
 
 .markdown-body th {
@@ -136,7 +126,7 @@
 /* Metadata Styles */
 .metadata {
     font-weight: bold;
-    color: #555;
+    color: #777;
     font-size: 14px;
     display: flex;
     justify-content: space-between;
