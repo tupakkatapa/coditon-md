@@ -343,33 +343,48 @@ app.get('/rss.xml', async (req, res) => {
     }
 });
 
-// 404 handler
-app.use((req, res, next) => {
-    const err = new Error(`Not Found: ${req.originalUrl}`);
-    err.status = 404;
-    next(err);
+// Error-handling middleware for 404 Not Found
+app.use(async (req, res, next) => {
+    const notFoundError = new Error('Not Found');
+    notFoundError.status = 404; // Setting custom property to distinguish this error
+    next(notFoundError); // Forwarding to the general error handler
 });
 
-// Error-handling middleware
+// General error-handling middleware
 app.use(async (err, req, res, next) => {
     await handleError(res, err);
 });
+
+// Utility function to handle errors and render them using Markdown
+async function handleError(res, err) {
+    console.error(err);
+
+    let userFriendlyMessage;
+    let statusCode = err.status || 500;
+
+    // Determine the user-friendly message based on the status code or specific error conditions
+    if (statusCode === 404 || err.code === "ENOENT" || (err.message && err.message.includes("Unsupported file extension"))) {
+        userFriendlyMessage = `# 404 Not Found \n\nThe page you are looking for does not exist.`;
+    } else {
+        // For all other errors, provide a generic message
+        userFriendlyMessage = `"# Error!\n\nAn unexpected error occurred. Please try again later.`;
+    }
+
+    const markdownError = md.render(userFriendlyMessage);
+    const folderStruct = await generateFolderStructure(CONTENTS_DIR);
+    res.status(statusCode).render('index', {
+        folderStructure: folderStruct,
+        initialContent: markdownError,
+        name: NAME, // Ensure NAME is defined
+        image: IMAGE, // Ensure IMAGE is defined or has a default
+        socialLinks: SOCIAL_LINKS // Ensure SOCIAL_LINKS is defined
+    });
+}
 
 // Utility function to read file and convert to Markdown
 async function readFileAsMarkdown(filePath) {
     const data = await fs.readFile(filePath, 'utf8');
     return md.render(data);
-}
-
-// Handle errors related to file reading
-async function handleError(res, err) {
-    console.error(err);  // Log the error to the console
-    const genericError = md.render(`**Oops!**\n\nWe encountered an issue. Please try again later.`);
-    const folderStruct = await generateFolderStructure(CONTENTS_DIR);
-    res.status(err.status || 500).render('index', {
-        folderStructure: folderStruct,
-        initialContent: err.status === 404 ? md.render(`**Not Found**\n\nThe page you are looking for does not exist.`) : genericError
-    });
 }
 
 // Parse Markdown file content for metadata and content
