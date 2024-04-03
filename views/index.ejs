@@ -40,17 +40,20 @@
         <div class="main">
             <div id="file-content" class="markdown-body">
                 <%- initialContent %>
+                <div class="theme-toggle-icon" title="Toggle Theme">
+                    <i id="themeToggleIcon" class="fa-solid fa-circle-half-stroke"></i>
+                </div>
                 <% if (typeof relativePath !== 'undefined') { %>
-                    <a href="/download/<%= relativePath %>" class="download-button download-icon">
+                    <a href="/download/<%= relativePath %>" class="download-button download-icon" title="Download">
                         <i class="fa fa-download"></i>
                     </a>
                 <% } %>
-                <a href="/rss.xml" class="rss-button rss-icon">
+                <a href="https://github.com/tupakkatapa/coditon-md" class="src-button src-icon" title="Source Code">
+                    <i class="fa-solid fa-link"></i>
+                </a>
+                <a href="/rss.xml" class="rss-button rss-icon" title="RSS Feed">
                     <i class="fa fa-rss"></i>
                 </a>
-                <div class="theme-toggle-icon">
-                    <i id="themeToggleIcon" class="fa-solid fa-circle-half-stroke"></i>
-                </div>
             </div>
             <div class="social-links-bar">
               <% if (socialLinks && socialLinks.length > 0) { %>

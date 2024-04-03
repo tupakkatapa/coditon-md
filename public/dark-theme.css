@@ -6,7 +6,8 @@
 
 .dark-theme .theme-toggle-icon,
 .dark-theme .download-icon,
-.dark-theme .rss-icon {
+.dark-theme .rss-icon,
+.dark-theme .src-icon {
     color: #333 !important;
 }
 

@@ -17,16 +17,13 @@
 }
 
 /* Buttons */
-.download-icon, .rss-icon, .theme-toggle-icon {
+.download-icon, .rss-icon, .theme-toggle-icon, .src-icon {
     color: #e1e1e1 !important;
     text-decoration: none;
     bottom: 10px;
     position: absolute;
 }
 
-.theme-toggle-icon {
-    right: 65px;
-}
 .theme-toggle-icon i, .theme-toggle-icon {
     cursor: pointer;
 }
@@ -34,12 +31,20 @@
     cursor: pointer;
 }
 
-.download-icon {
+.theme-toggle-icon {
     right: 15px;
 }
 
+.download-icon {
+    right: 45px;
+}
+
+.src-icon {
+    right: 75px;
+}
+
 .rss-icon {
-    right: 40px;
+    right: 105px;
 }
 
 /* Header Styles */
