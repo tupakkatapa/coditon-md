@@ -223,22 +223,13 @@ app.get('/', async (req, res) => {
     try {
         // Use findIndexFile to dynamically get the first Markdown file
         const filePath = await findIndexFile(CONTENTS_DIR);
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        const { content, metadata } = await parseFileContent(fileContent, filePath);
-        const outputContent = metadataToHtml(metadata) + content;
 
-        // Extract the relative path for the download link
+        // Extract the relative path for the redirection
         // Assuming CONTENTS_DIR is the base directory and filePath is absolute
-        const relativePath = filePath.substring(CONTENTS_DIR.length);
+        const relativePath = filePath.substring(CONTENTS_DIR.length).replace(/^\/|\\/, ''); // Ensure no leading slash
 
-        res.render('index', {
-            folderStructure: await generateFolderStructure(CONTENTS_DIR),
-            initialContent: outputContent,
-            name: NAME,
-            image: IMAGE,
-            socialLinks: SOCIAL_LINKS,
-            relativePath: relativePath, // Pass this for the download link
-        });
+        // Redirect to the path that serves the content of the found Markdown file
+        res.redirect(`/content/${relativePath}`);
     } catch (err) {
         handleError(res, err);
     }
