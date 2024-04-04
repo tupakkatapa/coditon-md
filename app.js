@@ -262,12 +262,14 @@ app.get('/content/:path(*)', async (req, res) => {
             res.status(500).send('Internal Server Error');
         }
     }
+
     // Serve Markdown or text files
     else if (MD_EXTENSIONS.includes(fileExtension)) {
         try {
             const { content, metadata } = await parseFileContent(await fs.readFile(filePath, 'utf8'), filePath);
             const outputContent = metadataToHtml(metadata) + content;
             const relativePath = path.relative(CONTENTS_DIR, filePath);
+            const title = path.basename(filePath, path.extname(filePath)).replace(/[-_]/g, ' ');
 
             req.isAjaxRequest
                 ? res.setHeader('Content-Type', 'text/html').send(outputContent)
@@ -277,7 +279,8 @@ app.get('/content/:path(*)', async (req, res) => {
                     name: NAME,
                     image: IMAGE,
                     socialLinks: SOCIAL_LINKS,
-                    relativePath: relativePath
+                    relativePath: relativePath,
+                    title: title
                 });
         } catch (err) {
             handleError(res, err);
