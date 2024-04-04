@@ -10,6 +10,7 @@ const yaml = require('js-yaml');
 const RSS = require('rss');
 
 const IGNORED_FILES = [];
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 const MD_EXTENSIONS = ['.md', '.txt'];
 const METADATA_FIELDS = ['title', 'author', 'date'];
 
@@ -143,12 +144,13 @@ const md = new MarkdownIt({
         }
         return '';
     },
+    html: true,
     typographer: true,
     linkify: true
 }).use(markdownItAnchor, {
     permalink: markdownItAnchor.permalink.headerLink(),
     slugify: s => encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-')),
-    level: 2
+    level: 1
 });
 
 // Apply plugins
@@ -244,27 +246,45 @@ app.use((req, res, next) => {
 // Route to serve articles
 app.get('/content/:path(*)', async (req, res) => {
     const filePath = path.join(CONTENTS_DIR, req.params.path);
-    if (!MD_EXTENSIONS.includes(path.extname(filePath).toLowerCase())) {
-        return handleError(res, new Error(`Unsupported file extension for: ${filePath}`));
+    const fileExtension = path.extname(filePath).toLowerCase();
+
+    // Check if the requested file is an image
+    if (IMAGE_EXTENSIONS.includes(fileExtension)) {
+        try {
+            const imageData = await fs.readFile(filePath);
+            const mime = await import('mime');
+            const mimeType = mime.default.getType(filePath) || 'application/octet-stream';
+
+            res.setHeader('Content-Type', mimeType);
+            res.send(imageData);
+        } catch (err) {
+            console.error('Error serving image file:', err);
+            res.status(500).send('Internal Server Error');
+        }
     }
+    // Serve Markdown or text files
+    else if (MD_EXTENSIONS.includes(fileExtension)) {
+        try {
+            const { content, metadata } = await parseFileContent(await fs.readFile(filePath, 'utf8'), filePath);
+            const outputContent = metadataToHtml(metadata) + content;
+            const relativePath = path.relative(CONTENTS_DIR, filePath);
 
-    try {
-        const { content, metadata } = await parseFileContent(await fs.readFile(filePath, 'utf8'), filePath);
-        const outputContent = metadataToHtml(metadata) + content;
-        const relativePath = path.relative(CONTENTS_DIR, filePath);
-
-        req.isAjaxRequest
-            ? res.setHeader('Content-Type', 'text/html').send(outputContent)
-            : res.render('index', {
-                folderStructure: await generateFolderStructure(CONTENTS_DIR),
-                initialContent: outputContent,
-                name: NAME,
-                image: IMAGE,
-                socialLinks: SOCIAL_LINKS,
-                relativePath: relativePath // Correctly pass relativePath here
-            });
-    } catch (err) {
-        handleError(res, err);
+            req.isAjaxRequest
+                ? res.setHeader('Content-Type', 'text/html').send(outputContent)
+                : res.render('index', {
+                    folderStructure: await generateFolderStructure(CONTENTS_DIR),
+                    initialContent: outputContent,
+                    name: NAME,
+                    image: IMAGE,
+                    socialLinks: SOCIAL_LINKS,
+                    relativePath: relativePath
+                });
+        } catch (err) {
+            handleError(res, err);
+        }
+    } else {
+        // Handle unsupported file types with an error
+        return handleError(res, new Error(`Unsupported file extension for: ${filePath}`));
     }
 });
 

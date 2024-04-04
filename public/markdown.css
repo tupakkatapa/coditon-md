@@ -16,6 +16,11 @@
     position: relative;
 }
 
+.markdown-body img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Buttons */
 .download-icon, .rss-icon, .theme-toggle-icon, .src-icon {
     color: #e1e1e1 !important;
