@@ -118,11 +118,21 @@
                 }
             });
 
+            // Temporarily disable transitions for instant loading effect
+            sidebar.classList.add('no-transition');
+            container.classList.add('no-transition');
+
             // Auto collapse
             if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
                 sidebar.classList.add('collapsed');
                 container.classList.add('sidebar-collapsed');
             }
+
+            // Re-enable transitions after initial setup
+            setTimeout(() => {
+                sidebar.classList.remove('no-transition');
+                container.classList.remove('no-transition');
+            }, 50);
 
             addCopyButtons();
             setupFolderToggles();
@@ -155,17 +165,46 @@
         }
 
         function setupFolderToggles() {
-            document.querySelectorAll('.sidebar .folder > span').forEach(folderSpan => {
+            const sidebar = document.querySelector('.sidebar');
+
+            sidebar.classList.add('no-transition');
+
+            document.querySelectorAll('.sidebar .folder > span').forEach((folderSpan, index) => {
+                const folderIcon = folderSpan.querySelector('i');
+                const listItem = folderSpan.parentElement;
+                const sublist = listItem.querySelector('ul');
+
+                const folderId = `folderState-${index}`;
+                listItem.setAttribute('data-folder-id', folderId);
+
+                const storedState = localStorage.getItem(folderId) || 'closed';
+                if (storedState === 'open') {
+                    listItem.classList.add('open');
+                    sublist.style.maxHeight = `${sublist.scrollHeight}px`;
+                    folderIcon.classList.remove('fa-folder');
+                    folderIcon.classList.add('fa-folder-open');
+                } else {
+                    listItem.classList.remove('open');
+                    sublist.style.maxHeight = 0;
+                    folderIcon.classList.add('fa-folder');
+                    folderIcon.classList.remove('fa-folder-open');
+                }
+
                 folderSpan.addEventListener('click', function() {
-                    const listItem = this.parentElement;
-                    const sublist = listItem.querySelector('ul');
                     listItem.classList.toggle('open');
-                    sublist.style.maxHeight = listItem.classList.contains('open') ? sublist.scrollHeight + "px" : 0;
-                    const folderIcon = this.querySelector('i');
+                    sublist.style.maxHeight = listItem.classList.contains('open') ? `${sublist.scrollHeight}px` : 0;
+
                     folderIcon.classList.toggle('fa-folder', !listItem.classList.contains('open'));
                     folderIcon.classList.toggle('fa-folder-open', listItem.classList.contains('open'));
+
+                    const state = listItem.classList.contains('open') ? 'open' : 'closed';
+                    localStorage.setItem(folderId, state);
                 });
             });
+
+            window.setTimeout(() => {
+                sidebar.classList.remove('no-transition');
+            }, 50);
         }
     </script>
 </body>

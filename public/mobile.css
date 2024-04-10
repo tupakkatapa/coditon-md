@@ -4,7 +4,12 @@
         font-size: 14px;
     }
 
-
+    .markdown-body .download-icon,
+    .markdown-body .rss-icon,
+    .markdown-body .theme-toggle-icon,
+    .markdown-body .src-icon {
+        font-size: 14px;
+    }
 
     .navigation-buttons div {
         margin: 3px 0;

@@ -1,3 +1,5 @@
+⚠️ **Written by a JavaScript beginner relying heavily on AI**
+
 # Coditon-MD
 
 Simple yet customizable, self-hosted platform designed to dynamically render Markdown files as HTML content from a specified directory.

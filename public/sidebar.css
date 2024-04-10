@@ -13,6 +13,10 @@
     transform: translateX(0);
 }
 
+.no-transition * {
+  transition: none !important;
+}
+
 .sidebar .navigation-buttons a {
     display: inline-block;
 }
@@ -60,6 +64,7 @@
     padding-right: 10px;
     margin: 0;
     font-size: 15px;
+    padding-bottom: 5px;
 }
 
 .sidebar li {
@@ -81,7 +86,8 @@
     overflow: hidden;
     transition: max-height 0.3s ease;
     padding-left: 1.5em;
-    max-height: 500px;
+    /* max-height: 500px; */
+    max-height: 0;
 }
 
 .sidebar li.open > ul {
