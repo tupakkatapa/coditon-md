@@ -537,10 +537,12 @@ async function generateFolderStructure(dir, isRoot = true) {
             structure.push(await generateFolderStructure(item.path, false));
         } else {
             const itemNameWithoutExtension = capitalize(path.basename(item.name, path.extname(item.name)));
+            const icon = itemNameWithoutExtension.toLowerCase() === 'home' ? '<i class="fas fa-home"></i>' : '<i class="fas fa-file-alt"></i>';
+
             const relativePath = path.relative(CONTENTS_DIR, item.path).split(path.sep).join('/');
             // Conditionally display date if available
             const dateDisplay = item.date ? `<div class="file-date">${item.date}</div>` : '';
-            structure.push(`<li><a href="/content/${relativePath}">${itemNameWithoutExtension}</a>${dateDisplay}</li>`);
+            structure.push(`<li><a href="/content/${relativePath}">${icon} ${itemNameWithoutExtension}</a>${dateDisplay}</li>`);
         }
     }
 
