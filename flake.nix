@@ -13,14 +13,10 @@
     flake-parts,
     ...
   }:
-    flake-parts.lib.mkFlake {inherit inputs;} rec {
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = inputs.nixpkgs.lib.systems.flakeExposed;
       imports = [
         inputs.devenv.flakeModule
-      ];
-
-      systems = [
-        "aarch64-linux"
-        "x86_64-linux"
       ];
 
       perSystem = {
@@ -62,9 +58,7 @@
         };
       };
 
-      flake = let
-        inherit (self) outputs;
-      in {
+      flake = {
         # NixOS modules
         nixosModules = {
           coditon-blog = import ./module.nix;

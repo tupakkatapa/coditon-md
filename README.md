@@ -1,17 +1,17 @@
-⚠️ **Written by a JavaScript beginner relying heavily on AI**
-
 # Coditon-MD
+
+> ⚠️  **Written by a JavaScript beginner relying heavily on AI**
 
 Simple yet customizable, self-hosted platform designed to dynamically render Markdown files as HTML content from a specified directory.
 
-My own instance is up and running at: https://blog.coditon.com
+My own instance is up and running at: [https://blog.coditon.com](https://blog.coditon.com)
 
 ## Key Features
 
 - Automatically converts Markdown files into HTML web pages
-- Parses YAML metadata, including title, author, and publication date
+- Parses YAML metadata to extract the publication date
 - Easily customizable via NixOS module or CLI
-- Syntax highlighting and a bunch of other markdown-it plugins
+- Syntax highlighting and a wide range of markdown-it plugins
 - Supports both dark and light themes for user preference
 - Fully responsive layout that looks great on both desktop and mobile devices
 - Provides an RSS feed and article downloads
@@ -55,6 +55,7 @@ For NixOS users, this can be seamlessly integrated as a module:
 ```
 
 Or with Nix run:
+
 ```shell
 nix run github:tupakkatapa/coditon-md# -- \
   --name "Your Name" \
@@ -64,7 +65,8 @@ nix run github:tupakkatapa/coditon-md# -- \
   --link "fa-x-twitter:https://x.com/yourusername"
 ```
 
-Of course, you can use Node.js if you are not into Nix:
+Or using Node.js:
+
 ```shell
 node app.js \
   --name "Your Name" \
@@ -76,20 +78,35 @@ node app.js \
 
 ## Usage
 
-1. **Create Markdown Files**: Place your Markdown (.md) files in the specified `dataDir`. Each file represents a post or page.
+1. **Create Markdown Files**:
+   Place your Markdown (`.md`) files in the specified `dataDir`. Each file represents a post or page.
 
-    - A level 1 title is automatically appended from the Markdown filename if a header does not exist.
-    - The index page is automatically the alphabetically first supported file in the data directory.
+   The index page is automatically the alphabetically first supported file in the data directory.
 
-2. **Metadata Configuration**: Optionally, include YAML metadata at the beginning of your Markdown files to specify the title, author, and date. For example:
+   Example `dataDir` structure:
+   ```
+   .
+   ├── Home.md
+   ├── image.jpg
+   ├── assets
+   │   └── treasure_map.jpg
+   ├── posts
+   │   ├── 'Desert Treasure.md'
+   │   └── 'The Fremennik Trials.md'
+   └── recipes
+       ├── 'Pineapple Pizza.md'
+       └── 'Gnome Cocktail.md'
+   ```
 
-    ```yaml
-    ---
-    title: "My First Post"
-    author: "Jesse Karjalainen"
-    date: "2024-03-30"
-    ---
-    ```
+2. **Metadata Configuration**:
+   Optionally, include YAML metadata at the beginning of your Markdown files to specify the publication date. For example:
 
-3. **Viewing Your Site**: Once you get this up and running, visit `http://localhost:8080` or your configured address.
+   ```yaml
+   ---
+   date: "2024-03-30"
+   ---
+   ```
+
+3. **Viewing Your Site**:
+   Once you get this up and running, visit `http://localhost:8080` (or your configured address) in your browser.
 

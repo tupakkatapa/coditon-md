@@ -1,57 +1,36 @@
-/* Mobile */
+/* Mobile Styles */
 @media (max-width: 768px) {
-    body {
-        font-size: 14px;
-    }
+  body { font-size: 14px; }
 
-    .markdown-body .download-icon,
-    .markdown-body .rss-icon,
-    .markdown-body .theme-toggle-icon,
-    .markdown-body .src-icon {
-        font-size: 14px;
-    }
+  .markdown-body .download-icon,
+  .markdown-body .rss-icon,
+  .markdown-body .theme-toggle-icon,
+  .markdown-body .src-icon {
+    font-size: 14px;
+  }
 
-    .navigation-buttons div {
-        margin: 3px 0;
-    }
+  .navigation-buttons div { margin: 3px 0; }
+  .sidebar h1 { font-size: 16px; }
+  .sidebar ul { font-size: 14px; }
 
-    .sidebar h1 {
-        font-size: 16px;
-    }
+  .metadata {
+    margin-bottom: 10px;
+    font-size: 8px;
+  }
+  .meta-author, .meta-title, .meta-date { font-size: 12px; }
 
-    .sidebar ul {
-        font-size: 14px;
-    }
+  .main .markdown-body h1 { font-size: 16px; }
+  .main .markdown-body h2 { font-size: 14px; }
+  .main .markdown-body h3 { font-size: 12px; }
+  .main .markdown-body p,
+  .main .markdown-body li { font-size: 10px; }
 
-    .metadata {
-        margin-bottom: 10px;
-        font-size: 8px;
-    }
-    .meta-author,
-    .meta-title,
-    .meta-date {
-        font-size: 12px;
-    }
+  .markdown-body code,
+  .markdown-body pre code { font-size: 12px; }
 
-    .main .markdown-body h1 { font-size: 16px; }
-    .main .markdown-body h2 { font-size: 14px; }
-    .main .markdown-body h3 { font-size: 12px; }
-    .main .markdown-body p, .main .markdown-body li { font-size: 10px; }
+  .markdown-body { min-width: calc(100vw - 150px); }
 
-    .markdown-body code,
-    .markdown-body pre code {
-        font-size: 12px;
-    }
-
-    .markdown-body {
-      min-width: calc(100vw - 150px);
-    }
-
-    .main .markdown-body {
-        padding-top: 10px;
-        padding-bottom: 20px;
-        padding-left: 25px;
-        padding-right: 25px;
-    }
+  .main .markdown-body {
+    padding: 10px 25px 20px 25px;
+  }
 }
-
