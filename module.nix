@@ -1,13 +1,13 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 with lib; let
   cfg = config.services.coditon-md;
-  coditon-md = pkgs.callPackage ./package.nix {};
-in {
+  coditon-md = pkgs.callPackage ./package.nix { };
+in
+{
   options.services.coditon-md = {
     enable = mkEnableOption "Whether to enable coditon-md";
 
@@ -54,7 +54,7 @@ in {
           };
         };
       });
-      default = [];
+      default = [ ];
       description = "Social media links.";
     };
 
@@ -83,8 +83,8 @@ in {
     ];
 
     systemd.services.coditon-md = {
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "simple";
         User = cfg.user;
@@ -104,7 +104,7 @@ in {
     };
 
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [cfg.port];
+      allowedTCPPorts = [ cfg.port ];
     };
 
     users.users = mkIf (cfg.user == "coditon") {
@@ -116,7 +116,7 @@ in {
     };
 
     users.groups = mkIf (cfg.group == "coditon") {
-      "coditon" = {};
+      "coditon" = { };
     };
   };
 }
