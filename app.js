@@ -29,7 +29,7 @@ let CONTENTS_DIR = path.join(__dirname, "contents");
 let NAME = "My Site";
 let IMAGE = "";
 const SOCIAL_LINKS = [];
-let SOURCE_LINK = "";
+let SOURCE_LINK = "https://github.com/tupakkatapa/coditon-md";
 
 // --- Helpers ---
 // Simple string capitalize

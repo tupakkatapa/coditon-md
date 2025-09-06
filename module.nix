@@ -58,6 +58,12 @@ in
       description = "Social media links.";
     };
 
+    sourceLink = mkOption {
+      type = types.str;
+      default = "https://github.com/tupakkatapa/coditon-md";
+      description = "Source code link displayed in the interface.";
+    };
+
     openFirewall = mkOption {
       type = types.bool;
       default = false;
@@ -99,6 +105,7 @@ in
           --address "${cfg.address}" \
           --name "${cfg.name}" \
           --image "${cfg.image}" \
+          --source "${cfg.sourceLink}" \
         ''
         + (concatStringsSep " " (map (item: "--link '${item.fab}:${item.url}'") cfg.links));
     };
