@@ -14,12 +14,21 @@ const IGNORED_FILES = [];
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 const MD_EXTENSIONS = ['.md', '.txt'];
 
+// Error messages
+const ERROR_MESSAGES = {
+  UNSUPPORTED_FILE: 'File type not supported',
+  NOT_FOUND: '# 404 Not Found\n\nThe requested resource could not be found.',
+  GENERIC_ERROR: '# Error\n\nAn unexpected error occurred. Please try again later.',
+  NO_VALID_FILES: 'No valid files found in the directory'
+};
+
 let PORT = 8080;
 let HOST = '0.0.0.0';
 let CONTENTS_DIR = path.join(__dirname, 'contents');
-let NAME = 'Mike Wazowski';
+let NAME = 'My Site';
 let IMAGE = '';
 let SOCIAL_LINKS = [];
+let SOURCE_LINK = '';
 
 // --- Helpers ---
 // Simple string capitalize
@@ -84,6 +93,10 @@ function parseArgs() {
         }
         i--; // Adjust index for outer loop
         break;
+      case '-s':
+      case '--source':
+        if (args[i + 1]) { SOURCE_LINK = args[++i]; }
+        break;
       default:
         break;
     }
@@ -97,10 +110,11 @@ Options:
   -d, --datadir       Set the data directory for contents (default: './contents')
   -a, --address       Set the host address (default: '0.0.0.0')
   -p, --port          Set the port number (default: 8080)
-  -n, --name          Set the name displayed on the site (default: 'Mike Wazowski')
+  -n, --name          Set the name displayed on the site (default: 'My Site')
   -i, --image         Set the path to the profile picture
   -l, --link          Add link with icon and URL in the format 'icon:url'
-                      (e.g., --link fa-github:https://github.com/username)`);
+                      (e.g., --link fa-github:https://github.com/username)
+  -s, --source        Set the source code repository URL`);
 }
 
 parseArgs();
@@ -121,9 +135,12 @@ const md = new MarkdownIt({
     if (lang && hljs.getLanguage(lang)) {
       try {
         return hljs.highlight(str, { language: lang }).value;
-      } catch (__) {}
+      } catch (err) {
+        console.error(`Syntax highlighting failed for language ${lang}:`, err);
+        return str;
+      }
     }
-    return '';
+    return str;
   }
 }).use(markdownItAnchor, {
   permalink: markdownItAnchor.permalink.headerLink(),
@@ -164,7 +181,10 @@ app.use((req, res, next) => {
 async function serveStaticFile(filePath, res) {
   const data = await fs.readFile(filePath);
   const mimeModule = await import('mime');
-  const mimeType = mimeModule.default.getType(filePath) || 'application/octet-stream';
+  const mimeType = mimeModule.default.getType(filePath);
+  if (!mimeType) {
+    throw Object.assign(new Error(`Unable to determine MIME type for: ${filePath}`), { status: 415 });
+  }
   res.setHeader('Content-Type', mimeType);
   res.send(data);
 }
@@ -175,7 +195,7 @@ async function serveStaticFile(filePath, res) {
 app.get('/download/:path(*)', asyncHandler(async (req, res) => {
   const filePath = path.join(CONTENTS_DIR, req.params.path);
   if (!MD_EXTENSIONS.includes(path.extname(filePath).toLowerCase())) {
-    return res.status(400).send('Unsupported file type.');
+    return res.status(400).send(ERROR_MESSAGES.UNSUPPORTED_FILE);
   }
   await fs.access(filePath);
   res.download(filePath);
@@ -193,7 +213,7 @@ async function findIndexFile(directory) {
   const validFiles = files.filter(file =>
     !file.startsWith('.') && MD_EXTENSIONS.includes(path.extname(file).toLowerCase())
   ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  if (!validFiles.length) throw new Error('No valid files found in the directory');
+  if (!validFiles.length) throw new Error(ERROR_MESSAGES.NO_VALID_FILES);
   return path.join(directory, validFiles[0]);
 }
 
@@ -204,11 +224,6 @@ app.get('/', asyncHandler(async (req, res) => {
   res.redirect(`/content/${relativePath}`);
 }));
 
-// Log incoming requests
-app.use((req, res, next) => {
-  console.log('Incoming request:', req.url);
-  next();
-});
 
 // Content route: serve markdown/text or image files
 app.get('/content/:path(*)', asyncHandler(async (req, res) => {
@@ -234,6 +249,7 @@ app.get('/content/:path(*)', asyncHandler(async (req, res) => {
       name: NAME,
       image: IMAGE,
       socialLinks: SOCIAL_LINKS,
+      sourceLink: SOURCE_LINK,
       relativePath,
       title
     });
@@ -250,11 +266,7 @@ async function generateRSSFeed() {
     feed_url: `http://${HOST}:${PORT}/rss.xml`,
     site_url: `http://${HOST}:${PORT}`,
     image_url: IMAGE,
-    managingEditor: 'editor@example.com',
-    webMaster: 'webmaster@example.com',
-    language: 'en',
-    pubDate: new Date().toString(),
-    ttl: '60'
+    pubDate: new Date().toString()
   });
 
   async function findMarkdownFiles(directory) {
@@ -321,9 +333,9 @@ async function handleError(res, err) {
     err.code === "ENOENT" ||
     (err.message && err.message.includes("Unsupported file extension"))
   ) {
-    message = '# 404 Not Found\n\nThe page you are looking for does not exist.';
+    message = ERROR_MESSAGES.NOT_FOUND;
   } else {
-    message = '# Error!\n\nAn unexpected error occurred. Please try again later.';
+    message = ERROR_MESSAGES.GENERIC_ERROR;
   }
   const markdownError = md.render(message);
   const folderStructure = await generateFolderStructure(CONTENTS_DIR);
@@ -333,6 +345,7 @@ async function handleError(res, err) {
     name: NAME,
     image: IMAGE,
     socialLinks: SOCIAL_LINKS,
+    sourceLink: SOURCE_LINK,
     title: statusCode.toString()
   });
 }
@@ -342,17 +355,12 @@ async function parseFileContent(data, filePath) {
   const fmMatch = data.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (fmMatch) {
     const frontMatter = yaml.load(fmMatch[1]) || {};
-    const date = frontMatter.date || await getFileDate(filePath);
-    return { content: md.render(fmMatch[2]), metadata: { date } };
+    return { content: md.render(fmMatch[2]), metadata: { date: frontMatter.date } };
   } else {
     return { content: md.render(data), metadata: {} };
   }
 }
 
-async function getFileDate(filePath) {
-  const stats = await fs.stat(filePath);
-  return stats.mtime.toISOString().split('T')[0];
-}
 
 function metadataToHtml(meta) {
   return `<div class="metadata">${meta.date ? `<span class="meta-date">${meta.date}</span>` : '&nbsp;'}</div>`;
@@ -389,7 +397,7 @@ async function generateFolderStructure(dir, isRoot = true) {
     } else if (MD_EXTENSIONS.includes(path.extname(item.name).toLowerCase())) {
       const fileContent = await fs.readFile(fullPath, 'utf8');
       const { metadata } = await parseFileContent(fileContent, fullPath);
-      detailedItems.push({ name: item.name, path: fullPath, isDirectory: false, date: metadata.date || '' });
+      detailedItems.push({ name: item.name, path: fullPath, isDirectory: false, date: metadata.date });
     }
   }
 

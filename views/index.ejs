@@ -46,9 +46,11 @@
             <i class="fa fa-download"></i>
           </a>
         <% } %>
-        <a href="https://github.com/tupakkatapa/coditon-md" class="src-button src-icon" title="Source Code">
+        <% if (sourceLink) { %>
+        <a href="<%= sourceLink %>" class="src-button src-icon" title="Source Code">
           <i class="fa-solid fa-link"></i>
         </a>
+        <% } %>
         <a href="/rss.xml" class="rss-button rss-icon" title="RSS Feed">
           <i class="fa fa-rss"></i>
         </a>
@@ -66,6 +68,15 @@
   </div>
 
   <script>
+    // Configuration
+    const CONFIG = {
+      SWIPE_THRESHOLD: 75,
+      MOBILE_BREAKPOINT: 768,
+      TRANSITION_DELAY: 50,
+      COPY_BUTTON_RESET_DELAY: 2000,
+      DEFAULT_THEME: 'dark'
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       setupThemeToggle();
       setupSidebarToggle();
@@ -85,10 +96,10 @@
       };
 
       themeToggleIcon.addEventListener("click", toggleTheme);
-      const preferredTheme = localStorage.getItem("theme") || "dark";
-      document.body.classList.toggle("dark-theme", preferredTheme === "dark");
-      document.getElementById("highlightjs-light").disabled = preferredTheme === "dark";
-      document.getElementById("highlightjs-dark").disabled = preferredTheme !== "dark";
+      const preferredTheme = localStorage.getItem("theme") || CONFIG.DEFAULT_THEME;
+      document.body.classList.toggle("dark-theme", preferredTheme === CONFIG.DEFAULT_THEME);
+      document.getElementById("highlightjs-light").disabled = preferredTheme === CONFIG.DEFAULT_THEME;
+      document.getElementById("highlightjs-dark").disabled = preferredTheme !== CONFIG.DEFAULT_THEME;
     }
 
     function setupSidebarToggle() {
@@ -111,7 +122,7 @@
       document.body.addEventListener('touchstart', (e) => touchStartX = e.changedTouches[0].screenX);
       document.body.addEventListener('touchend', (e) => {
         const touchEndX = e.changedTouches[0].screenX;
-        const threshold = 75;
+        const threshold = CONFIG.SWIPE_THRESHOLD;
         const sidebar = document.querySelector('.sidebar');
         const container = document.querySelector('.container');
         const collapseBtn = document.getElementById('collapseSidebar');
@@ -136,7 +147,7 @@
       sidebar.classList.add('no-transition');
       container.classList.add('no-transition');
 
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) {
         sidebar.classList.add('collapsed');
         container.classList.add('sidebar-collapsed');
         collapseBtn.style.transform = 'rotate(180deg)';
@@ -147,7 +158,7 @@
       setTimeout(() => {
         sidebar.classList.remove('no-transition');
         container.classList.remove('no-transition');
-      }, 50);
+      }, CONFIG.TRANSITION_DELAY);
     }
 
     function addCopyButtons() {
@@ -158,7 +169,7 @@
         copyButton.addEventListener('click', () => {
           navigator.clipboard.writeText(block.textContent).then(() => {
             copyButton.textContent = 'Copied!';
-            setTimeout(() => copyButton.textContent = 'Copy', 2000);
+            setTimeout(() => copyButton.textContent = 'Copy', CONFIG.COPY_BUTTON_RESET_DELAY);
           });
         });
 
@@ -194,7 +205,7 @@
         folderSpan.addEventListener('click', () => setFolderState(!listItem.classList.contains('open')));
       });
 
-      setTimeout(() => sidebar.classList.remove('no-transition'), 50);
+      setTimeout(() => sidebar.classList.remove('no-transition'), CONFIG.TRANSITION_DELAY);
     }
   </script>
 </body>
