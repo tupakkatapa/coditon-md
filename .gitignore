@@ -6,6 +6,7 @@ pipe
 private
 .devenv
 .pre-commit-config.yaml
+.claude/
 
 # Playwright
 /test-results/
