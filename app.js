@@ -148,28 +148,36 @@ const md = new MarkdownIt({
   level: 1
 });
 
-const plugins = [
-  'pica',
-  'markdown-it-anchor',
-  'markdown-it-highlightjs',
-  'markdown-it-emoji',
-  'markdown-it-sub',
-  'markdown-it-ins',
-  'markdown-it-mark',
-  'markdown-it-expandable',
-  'markdown-it-footnote',
-  'markdown-it-deflist',
-  'markdown-it-container',
-  'markdown-it-abbr'
-];
-
-for (const plugin of plugins) {
+// Load plugins with proper initialization
+const loadPlugin = (name, ...args) => {
   try {
-    md.use(require(plugin));
+    const plugin = require(name);
+    // Handle different module export patterns
+    if (name === 'markdown-it-emoji') {
+      // markdown-it-emoji v3.x exports an object with different presets
+      const pluginFn = plugin.full || plugin.default || plugin;
+      md.use(pluginFn, ...args);
+    } else {
+      const pluginFn = plugin.default || plugin;
+      md.use(pluginFn, ...args);
+    }
   } catch (err) {
-    console.error(`Failed to load plugin ${plugin}:`, err);
+    console.error(`Failed to load plugin ${name}:`, err.message);
   }
-}
+};
+
+loadPlugin('markdown-it-highlightjs');
+loadPlugin('markdown-it-emoji');
+loadPlugin('markdown-it-sub');
+loadPlugin('markdown-it-ins');
+loadPlugin('markdown-it-mark');
+loadPlugin('markdown-it-expandable');
+loadPlugin('markdown-it-footnote');
+loadPlugin('markdown-it-deflist');
+loadPlugin('markdown-it-container', 'warning');
+loadPlugin('markdown-it-container', 'info');
+loadPlugin('markdown-it-abbr');
+loadPlugin('markdown-it-collapsible');
 
 // Middleware to detect AJAX requests
 app.use((req, res, next) => {
