@@ -1,6 +1,6 @@
 # Coditon-MD
 
-> ⚠️  **Written by a JavaScript beginner relying heavily on AI**
+> ⚠️ **Written by a JavaScript beginner relying heavily on AI**
 
 Simple yet customizable, self-hosted platform designed to dynamically render Markdown files as HTML content from a specified directory.
 
@@ -84,6 +84,7 @@ node app.js \
    The index page is automatically the alphabetically first supported file in the data directory.
 
    Example `dataDir` structure:
+
    ```
    .
    ├── Home.md
@@ -109,4 +110,3 @@ node app.js \
 
 3. **Viewing Your Site**:
    Once you get this up and running, visit `http://localhost:8080` (or your configured address) in your browser.
-

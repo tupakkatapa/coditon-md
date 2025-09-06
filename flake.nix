@@ -40,6 +40,8 @@
               };
               pre-commit.hooks = {
                 nixpkgs-fmt.enable = true;
+                eslint.enable = true;
+                prettier.enable = true;
               };
               # Workaround for https://github.com/cachix/devenv/issues/760
               containers = pkgs.lib.mkForce { };
