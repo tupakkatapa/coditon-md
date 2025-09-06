@@ -109,8 +109,69 @@
 .sidebar a {
   color: #444;
   text-decoration: none;
-  display: block;
-  padding: 3px 0;
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  transition: all 0.05s ease;
+}
+
+.sidebar a:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #222;
+}
+
+/* Folder span hover (for directories) */
+.sidebar .folder > span {
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  transition: all 0.05s ease;
+  cursor: pointer;
+}
+
+.sidebar .folder > span:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #222;
+}
+
+.sidebar li.active a {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+  font-weight: 500;
+}
+
+.sidebar li.active a:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #222;
+}
+
+/* Home link styling - should look like folder but be clickable */
+.sidebar li.folder > a {
+  display: inline-block;
+  color: #444;
+  text-decoration: none;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  transition: all 0.05s ease;
+}
+
+.sidebar li.folder > a:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #222;
+}
+
+.sidebar li.folder.active > a {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+  font-weight: 500;
+}
+
+.sidebar li.folder.active > a:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #222;
 }
 
 .file-date {

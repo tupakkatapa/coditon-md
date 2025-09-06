@@ -283,7 +283,11 @@ app.get(
         return res.send(outputContent);
       }
       res.render("index", {
-        folderStructure: await generateFolderStructure(CONTENTS_DIR),
+        folderStructure: await generateFolderStructure(
+          CONTENTS_DIR,
+          true,
+          `/content/${relativePath}`,
+        ),
         initialContent: outputContent,
         name: NAME,
         image: IMAGE,
@@ -453,10 +457,12 @@ async function parseFileContent(data, filePath) {
 }
 
 function metadataToHtml(meta) {
-  return `<div class="metadata">${meta.date ? `<span class="meta-date">${meta.date}</span>` : "&nbsp;"}</div>`;
+  return meta.date
+    ? `<div class="metadata"><span class="meta-date">${meta.date}</span></div>`
+    : "";
 }
 
-async function generateFolderStructure(dir, isRoot = true) {
+async function generateFolderStructure(dir, isRoot = true, currentPath = null) {
   const items = await fs.readdir(dir, { withFileTypes: true });
   const structure = ["<ul>"];
   const detailedItems = [];
@@ -487,7 +493,11 @@ async function generateFolderStructure(dir, isRoot = true) {
     const fullPath = path.join(dir, item.name);
     if (item.isDirectory()) {
       if (!(await isDirectoryValid(fullPath))) continue;
-      const content = await generateFolderStructure(fullPath, false);
+      const content = await generateFolderStructure(
+        fullPath,
+        false,
+        currentPath,
+      );
       if (!content.trim() || content.trim() === "<ul></ul>") continue;
       detailedItems.push({
         name: item.name,
@@ -540,9 +550,19 @@ async function generateFolderStructure(dir, isRoot = true) {
       const dateDisplay = item.date
         ? `<div class="file-date">${item.date}</div>`
         : "";
-      structure.push(
-        `<li><a href="/content/${relPath}">${icon} ${itemName}</a>${dateDisplay}</li>`,
-      );
+      const isActive = currentPath && `/content/${relPath}` === currentPath;
+      const activeClass = isActive ? ' class="active"' : "";
+
+      if (itemName.toLowerCase() === "home") {
+        // Home should be styled like a folder but be a direct link
+        structure.push(
+          `<li class="folder${activeClass ? " active" : ""}"><a href="/content/${relPath}">${icon} ${itemName}</a></li>`,
+        );
+      } else {
+        structure.push(
+          `<li${activeClass}><a href="/content/${relPath}">${icon} ${itemName}</a>${dateDisplay}</li>`,
+        );
+      }
     }
   }
   structure.push("</ul>");

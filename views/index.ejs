@@ -21,6 +21,7 @@
 </head>
 <body class="dark-theme">
   <div class="container">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
     <nav class="sidebar" role="navigation" aria-label="Site navigation">
       <div class="sidebar-content">
         <div class="image-container">
@@ -82,6 +83,7 @@
       setupInitialSidebarState();
       addCopyButtons();
       setupFolderToggles();
+      setupKeyboardNavigation();
     });
 
     function setupThemeToggle() {
@@ -115,15 +117,28 @@
       const collapseBtn = document.getElementById('collapseSidebar');
       const sidebar = document.querySelector('.sidebar');
       const container = document.querySelector('.container');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const isMobile = () => window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
 
       const toggleSidebar = () => {
         const isCollapsed = sidebar.classList.toggle('collapsed');
-        container.classList.toggle('sidebar-collapsed');
-        document.body.classList.toggle('no-scroll', !isCollapsed);
+        
+        if (isMobile()) {
+          backdrop.classList.toggle('active', !isCollapsed);
+          document.body.style.overflow = isCollapsed ? 'auto' : 'hidden';
+        } else {
+          container.classList.toggle('sidebar-collapsed', isCollapsed);
+        }
+        
         collapseBtn.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
       };
 
       collapseBtn.addEventListener('click', toggleSidebar);
+      backdrop.addEventListener('click', () => {
+        if (!sidebar.classList.contains('collapsed')) {
+          toggleSidebar();
+        }
+      });
     }
 
     function setupSwipeGestures() {
@@ -152,15 +167,15 @@
       const sidebar = document.querySelector('.sidebar');
       const container = document.querySelector('.container');
       const collapseBtn = document.getElementById('collapseSidebar');
+      const isMobile = () => window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
 
       sidebar.classList.add('no-transition');
       container.classList.add('no-transition');
 
-      if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) {
-        // On mobile, keep sidebar expanded for accessibility but ensure it doesn't interfere with content
-        sidebar.classList.remove('collapsed');
-        container.classList.remove('sidebar-collapsed');
-        collapseBtn.style.transform = 'rotate(0deg)';
+      if (isMobile()) {
+        // On mobile, start with sidebar collapsed
+        sidebar.classList.add('collapsed');
+        collapseBtn.style.transform = 'rotate(180deg)';
       } else {
         sidebar.classList.remove('collapsed');
         container.classList.remove('sidebar-collapsed');
@@ -218,6 +233,37 @@
       });
 
       setTimeout(() => sidebar.classList.remove('no-transition'), CONFIG.TRANSITION_DELAY);
+    }
+
+
+    function setupKeyboardNavigation() {
+      document.addEventListener('keydown', (e) => {
+        // Ignore if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        switch (e.key) {
+          case 't':
+          case 'T':
+            e.preventDefault();
+            document.getElementById('themeToggleIcon').click();
+            break;
+          case 'Escape':
+            const sidebar = document.querySelector('.sidebar');
+            if (!sidebar.classList.contains('collapsed')) {
+              document.getElementById('collapseSidebar').click();
+            }
+            break;
+          case 'Home':
+            e.preventDefault();
+            document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
+            break;
+          case 'End':
+            e.preventDefault();
+            const main = document.querySelector('.main');
+            main.scrollTo({ top: main.scrollHeight, behavior: 'smooth' });
+            break;
+        }
+      });
     }
   </script>
 </body>

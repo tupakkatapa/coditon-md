@@ -4,7 +4,7 @@
   min-width: 400px;
   margin: 0 auto;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #333;
   background-color: #fff;
   padding: 30px 75px 75px 75px;
@@ -16,6 +16,38 @@
 .markdown-body img {
   max-width: 100%;
   height: auto;
+}
+
+/* Improved content spacing */
+.markdown-body p {
+  margin-bottom: 20px;
+}
+
+.markdown-body h1 + p,
+.markdown-body h2 + p,
+.markdown-body h3 + p {
+  margin-top: 8px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin-bottom: 20px;
+}
+
+.markdown-body li {
+  margin-bottom: 4px;
+}
+
+.markdown-body blockquote {
+  margin: 24px 0;
+}
+
+.markdown-body pre {
+  margin: 24px 0;
+}
+
+.markdown-body table {
+  margin: 28px 0;
 }
 
 /* Content Action Buttons - Bottom Right of Content Box */
@@ -32,7 +64,7 @@
   font-size: 16px;
   padding: 6px;
   margin: 0;
-  transition: all 0.2s ease;
+  transition: all 0.05s ease;
   z-index: 10;
   width: 28px;
   height: 28px;
@@ -103,7 +135,9 @@
 
 /* Code Styling */
 .markdown-body code {
-  font-family: monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
+    monospace;
   background-color: #f7f7f7;
   padding: 2px 5px;
   border-radius: 5px;
@@ -147,13 +181,15 @@
 
 /* Metadata Styles */
 .metadata {
-  font-weight: bold;
+  font-weight: normal;
   color: #777;
   font-size: 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e1e1e1;
 }
 
 .meta-title {

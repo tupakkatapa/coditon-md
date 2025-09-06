@@ -49,8 +49,42 @@
 }
 
 .dark-theme .sidebar a:hover {
-  color: #ddd;
-  background-color: transparent;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark-theme .sidebar .folder > span:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.dark-theme .sidebar li.active a {
+  background: rgba(255, 255, 255, 0.12);
+  color: #eee;
+}
+
+.dark-theme .sidebar li.active a:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.dark-theme .sidebar li.folder > a {
+  color: #eee;
+}
+
+.dark-theme .sidebar li.folder > a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.dark-theme .sidebar li.folder.active > a {
+  background: rgba(255, 255, 255, 0.12);
+  color: #eee;
+}
+
+.dark-theme .sidebar li.folder.active > a:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
 }
 
 /* Markdown Body Styles in Dark Theme */
@@ -114,8 +148,9 @@
 }
 
 /* Metadata Styles */
-.metadata {
+.dark-theme .metadata {
   color: #aaa;
+  border-bottom-color: #333;
 }
 
 /* Additional Dark Theme Styles */

@@ -141,6 +141,13 @@ test.describe("Responsive Design", () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
 
+    // On mobile, sidebar starts collapsed, so open it first
+    const collapseBtn = page.locator("#collapseSidebar");
+    await collapseBtn.click();
+
+    // Wait for sidebar to open
+    await page.waitForTimeout(300);
+
     // Navigation links should be accessible
     const navLinks = page.locator(".sidebar a");
     const linkCount = await navLinks.count();

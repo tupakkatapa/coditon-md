@@ -31,6 +31,14 @@ test.describe("Content Loading & Navigation", () => {
   test("navigation between content works", async ({ page }) => {
     await page.goto("/");
 
+    // Check if on mobile and open sidebar if needed
+    const viewportSize = page.viewportSize();
+    if (viewportSize && viewportSize.width <= 768) {
+      const collapseBtn = page.locator("#collapseSidebar");
+      await collapseBtn.click();
+      await page.waitForTimeout(300);
+    }
+
     // Get all navigation links
     const navLinks = page.locator('.sidebar a[href^="/content/"]');
     const linkCount = await navLinks.count();

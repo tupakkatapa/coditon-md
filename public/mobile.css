@@ -4,30 +4,63 @@
     font-size: 14px;
   }
 
-  /* Content action buttons on mobile */
+  /* Mobile sidebar overlay */
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 1000;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Mobile overlay backdrop */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-backdrop.active {
+    display: block;
+  }
+
+  /* Content action buttons on mobile - optimized touch targets */
   .download-icon,
   .rss-icon,
   .src-icon,
   .theme-toggle {
-    font-size: 12px;
-    width: 32px;
-    height: 32px;
-    padding: 8px;
-    bottom: 10px;
+    font-size: 14px;
+    width: 44px;
+    height: 44px;
+    padding: 12px;
+    bottom: 15px;
+    border-radius: 8px;
   }
 
-  /* Adjust mobile button positions - horizontal at bottom */
+  /* Adjust mobile button positions - horizontal at bottom with better spacing */
   .theme-toggle {
     right: 10px;
   }
   .download-icon {
-    right: 50px;
+    right: 64px;
   }
   .src-icon {
-    right: 90px;
+    right: 118px;
   }
   .rss-icon {
-    right: 130px;
+    right: 172px;
   }
 
   /* Theme toggle moved to content area */
@@ -40,6 +73,32 @@
   }
   .sidebar ul {
     font-size: 14px;
+  }
+
+  /* Optimize touch targets */
+  .sidebar a {
+    padding: 8px 12px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .sidebar .folder > span {
+    padding: 8px 12px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .sidebar i {
+    margin-right: 8px;
+    min-width: 20px;
+  }
+
+  .arrow-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 
   .metadata {
@@ -76,6 +135,32 @@
   }
 
   .main .markdown-body {
-    padding: 10px 25px 20px 25px;
+    padding: 24px 20px 80px 20px;
+    margin: 16px;
+    min-width: unset;
+  }
+
+  .main {
+    padding: 0;
+  }
+
+  /* Better mobile typography */
+  .markdown-body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .markdown-body h1 {
+    font-size: 24px;
+    margin: 24px 0 16px 0;
+  }
+
+  .markdown-body h2 {
+    font-size: 20px;
+    margin: 20px 0 12px 0;
+  }
+
+  .markdown-body p {
+    margin-bottom: 16px;
   }
 }
