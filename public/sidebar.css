@@ -50,12 +50,20 @@
 }
 
 /* Sidebar Header Styles */
-.sidebar h1 {
+.sidebar-header {
+  position: relative;
+  padding-bottom: 25px;
+}
+
+.sidebar h1,
+.sidebar h2 {
   color: #444;
   text-align: center;
   font-size: 25px;
-  padding-bottom: 25px;
+  margin-bottom: 0;
 }
+
+/* Theme toggle moved to content area */
 
 /* Sidebar List Styles */
 .sidebar ul {

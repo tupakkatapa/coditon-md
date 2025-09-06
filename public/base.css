@@ -41,14 +41,21 @@ body {
 }
 
 .social-link {
-  color: #444;
+  color: #666;
   text-decoration: none;
-  padding: 8px;
-  display: inline-block;
+  padding: 6px;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin: 0;
 }
 
 .social-link:hover {
-  color: #007bff;
+  color: #333;
 }
 
 .social-links-bar {
@@ -58,10 +65,9 @@ body {
   padding: 10px 0;
   text-align: center;
   border-top: 1px solid #e1e1e1;
-}
-
-.social-links-bar i {
-  margin-right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .main {

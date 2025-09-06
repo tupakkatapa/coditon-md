@@ -5,6 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
+    playwright.url = "github:pietdevries94/playwright-web-flake/1.55.0";
   };
 
   outputs =
@@ -20,6 +21,7 @@
 
       perSystem =
         { self'
+        , inputs'
         , pkgs
         , ...
         }: {
@@ -30,6 +32,7 @@
                 yarn
                 yarn2nix
                 nodejs
+                inputs'.playwright.packages.playwright-test
               ];
               env = {
                 NIX_CONFIG = ''
@@ -37,11 +40,20 @@
                   extra-experimental-features = flakes nix-command
                   warn-dirty = false
                 '';
+                PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+                PLAYWRIGHT_BROWSERS_PATH = "${inputs'.playwright.packages.playwright-driver.browsers}";
+                PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
               };
               pre-commit.hooks = {
                 nixpkgs-fmt.enable = true;
                 eslint.enable = true;
                 prettier.enable = true;
+                playwright = {
+                  enable = true;
+                  entry = "${inputs'.playwright.packages.playwright-test}/bin/playwright test";
+                  pass_filenames = false;
+                  files = "\\.(js|ts|jsx|tsx|html|css|md|json)$";
+                };
               };
               # Workaround for https://github.com/cachix/devenv/issues/760
               containers = pkgs.lib.mkForce { };

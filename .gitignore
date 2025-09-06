@@ -7,3 +7,8 @@ private
 .devenv
 .pre-commit-config.yaml
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

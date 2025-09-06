@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
 
   <link rel="stylesheet" href="/base.css">
@@ -14,36 +14,35 @@
   <link rel="preload" href="/profile-pic" as="image">
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" id="highlightjs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-  <link rel="stylesheet" id="highlightjs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" disabled>
+  <link rel="stylesheet" id="highlightjs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" disabled>
+  <link rel="stylesheet" id="highlightjs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </head>
-<body>
+<body class="dark-theme">
   <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" role="navigation" aria-label="Site navigation">
       <div class="sidebar-content">
         <div class="image-container">
           <% if (image) { %>
             <img src="/profile-pic" alt="Profile Image">
           <% } %>
         </div>
-        <h1>~ <%= name %></h1>
+        <div class="sidebar-header">
+          <h2>~ <%= name %></h2>
+        </div>
         <div class="navigation-buttons">
           <%- folderStructure %>
         </div>
-        <button class="arrow-btn" id="collapseSidebar">⟨</button>
+        <button class="arrow-btn" id="collapseSidebar" aria-label="Toggle sidebar">⟨</button>
       </div>
-    </div>
-    <div class="main">
+    </nav>
+    <main class="main" role="main">
       <div id="file-content" class="markdown-body">
         <%- initialContent %>
-        <div class="theme-toggle-icon" title="Toggle Theme">
-          <i id="themeToggleIcon" class="fa-solid fa-circle-half-stroke"></i>
-        </div>
         <% if (typeof relativePath !== 'undefined') { %>
           <a href="/download/<%= relativePath %>" class="download-button download-icon" title="Download">
-            <i class="fa fa-download"></i>
+            <i class="fa-solid fa-download"></i>
           </a>
         <% } %>
         <% if (sourceLink) { %>
@@ -52,16 +51,15 @@
         </a>
         <% } %>
         <a href="/rss.xml" class="rss-button rss-icon" title="RSS Feed">
-          <i class="fa fa-rss"></i>
+          <i class="fa-solid fa-rss"></i>
+        </a>
+        <a href="#" class="theme-toggle" id="themeToggleIcon" title="Toggle Theme" aria-label="Toggle between light and dark theme">
+          <i class="fa-solid fa-circle-half-stroke"></i>
         </a>
       </div>
       <div class="social-links-bar">
         <% if (socialLinks && socialLinks.length > 0) { %>
-          <% socialLinks.forEach(function(link) { %>
-            <a href="<%= link.href %>" class="social-link">
-              <i class="fab <%= link.fab %>"></i>
-            </a>
-          <% }); %>
+          <% socialLinks.forEach(function(link) { %><a href="<%= link.href %>" class="social-link"><i class="fab <%= link.fab %>"></i></a><% }); %>
         <% } %>
       </div>
     </div>
@@ -95,11 +93,22 @@
         document.getElementById("highlightjs-dark").disabled = !isDarkTheme;
       };
 
-      themeToggleIcon.addEventListener("click", toggleTheme);
-      const preferredTheme = localStorage.getItem("theme") || CONFIG.DEFAULT_THEME;
-      document.body.classList.toggle("dark-theme", preferredTheme === CONFIG.DEFAULT_THEME);
-      document.getElementById("highlightjs-light").disabled = preferredTheme === CONFIG.DEFAULT_THEME;
-      document.getElementById("highlightjs-dark").disabled = preferredTheme !== CONFIG.DEFAULT_THEME;
+      themeToggleIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        toggleTheme();
+      });
+      const storedTheme = localStorage.getItem("theme");
+      const validThemes = ["dark", "light"];
+      const preferredTheme = validThemes.includes(storedTheme) ? storedTheme : CONFIG.DEFAULT_THEME;
+      const isDark = preferredTheme === "dark";
+      
+      // Body already has dark-theme class by default, only remove if light theme
+      if (!isDark) {
+        document.body.classList.remove("dark-theme");
+      }
+      
+      document.getElementById("highlightjs-light").disabled = isDark;
+      document.getElementById("highlightjs-dark").disabled = !isDark;
     }
 
     function setupSidebarToggle() {
@@ -148,10 +157,13 @@
       container.classList.add('no-transition');
 
       if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) {
-        sidebar.classList.add('collapsed');
-        container.classList.add('sidebar-collapsed');
-        collapseBtn.style.transform = 'rotate(180deg)';
+        // On mobile, keep sidebar expanded for accessibility but ensure it doesn't interfere with content
+        sidebar.classList.remove('collapsed');
+        container.classList.remove('sidebar-collapsed');
+        collapseBtn.style.transform = 'rotate(0deg)';
       } else {
+        sidebar.classList.remove('collapsed');
+        container.classList.remove('sidebar-collapsed');
         collapseBtn.style.transform = 'rotate(0deg)';
       }
 

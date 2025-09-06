@@ -4,12 +4,23 @@
   color: #fff;
 }
 
-.dark-theme .theme-toggle-icon,
+/* Content action buttons dark theme */
 .dark-theme .download-icon,
 .dark-theme .rss-icon,
-.dark-theme .src-icon {
-  color: #333 !important;
+.dark-theme .src-icon,
+.dark-theme .theme-toggle {
+  color: #999 !important;
+  background: none;
 }
+
+.dark-theme .download-icon:hover,
+.dark-theme .rss-icon:hover,
+.dark-theme .src-icon:hover,
+.dark-theme .theme-toggle:hover {
+  color: #fff !important;
+}
+
+/* Theme toggle moved to content area */
 
 /* Sidebar Styles in Dark Theme */
 .dark-theme .sidebar {
@@ -18,11 +29,16 @@
 }
 
 .dark-theme .sidebar h1,
+.dark-theme .sidebar h2,
 .dark-theme .sidebar a {
   color: #eee;
 }
 .dark-theme .social-link {
-  color: #eee;
+  color: #999;
+}
+
+.dark-theme .social-link:hover {
+  color: #fff;
 }
 .dark-theme .social-links-bar {
   border-top: 1px solid #333;

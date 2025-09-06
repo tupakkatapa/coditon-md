@@ -18,32 +18,50 @@
   height: auto;
 }
 
-/* Buttons */
+/* Content Action Buttons - Bottom Right of Content Box */
 .download-icon,
 .rss-icon,
-.theme-toggle-icon,
-.src-icon {
-  color: #e1e1e1 !important;
+.src-icon,
+.theme-toggle {
+  color: #666 !important;
   text-decoration: none;
   position: absolute;
-  bottom: 10px;
+  bottom: 15px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  padding: 6px;
+  margin: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
 }
 
-.theme-toggle-icon,
-#themeToggleIcon {
-  cursor: pointer;
+.download-icon:hover,
+.rss-icon:hover,
+.src-icon:hover,
+.theme-toggle:hover {
+  color: #333 !important;
 }
-.theme-toggle-icon {
+
+/* Content button positioning - horizontal row at bottom */
+.theme-toggle {
   right: 15px;
 }
 .download-icon {
-  right: 45px;
+  right: 53px;
 }
 .src-icon {
-  right: 75px;
+  right: 91px;
 }
 .rss-icon {
-  right: 105px;
+  right: 129px;
 }
 
 /* Header Styles */

@@ -4,12 +4,33 @@
     font-size: 14px;
   }
 
-  .markdown-body .download-icon,
-  .markdown-body .rss-icon,
-  .markdown-body .theme-toggle-icon,
-  .markdown-body .src-icon {
-    font-size: 14px;
+  /* Content action buttons on mobile */
+  .download-icon,
+  .rss-icon,
+  .src-icon,
+  .theme-toggle {
+    font-size: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 8px;
+    bottom: 10px;
   }
+
+  /* Adjust mobile button positions - horizontal at bottom */
+  .theme-toggle {
+    right: 10px;
+  }
+  .download-icon {
+    right: 50px;
+  }
+  .src-icon {
+    right: 90px;
+  }
+  .rss-icon {
+    right: 130px;
+  }
+
+  /* Theme toggle moved to content area */
 
   .navigation-buttons div {
     margin: 3px 0;

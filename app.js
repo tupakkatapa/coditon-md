@@ -303,64 +303,95 @@ app.get(
 
 // Utility: generate RSS feed from markdown files
 async function generateRSSFeed() {
-  const feed = new RSS({
-    title: NAME,
-    description: `RSS feed for ${NAME}'s content`,
-    feed_url: `http://${HOST}:${PORT}/rss.xml`,
-    site_url: `http://${HOST}:${PORT}`,
-    image_url: IMAGE,
-    pubDate: new Date().toString(),
-  });
+  try {
+    const feed = new RSS({
+      title: NAME,
+      description: `RSS feed for ${NAME}'s content`,
+      feed_url: `http://${HOST}:${PORT}/rss.xml`,
+      site_url: `http://${HOST}:${PORT}`,
+      image_url: IMAGE,
+      pubDate: new Date().toString(),
+    });
 
-  async function findMarkdownFiles(directory) {
-    const entries = await fs.readdir(directory, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        await findMarkdownFiles(fullPath);
-      } else if (
-        MD_EXTENSIONS.includes(path.extname(entry.name).toLowerCase())
-      ) {
-        await processMarkdownFile(fullPath, entry.name);
+    async function findMarkdownFiles(directory) {
+      const entries = await fs.readdir(directory, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(directory, entry.name);
+        if (entry.isDirectory()) {
+          await findMarkdownFiles(fullPath);
+        } else if (
+          MD_EXTENSIONS.includes(path.extname(entry.name).toLowerCase())
+        ) {
+          await processMarkdownFile(fullPath, entry.name);
+        }
       }
     }
-  }
 
-  async function processMarkdownFile(filePath, fileName) {
-    const rawData = await fs.readFile(filePath, "utf8");
-    const { metadata } = await parseFileContent(rawData, filePath);
-    const title = fileName
-      .replace(/\..+$/, "")
-      .split("-")
-      .map((word) => capitalize(word))
-      .join(" ");
-    const relativePath = path
-      .relative(CONTENTS_DIR, filePath)
-      .split(path.sep)
-      .join("/");
-    const categoryArr = path.dirname(relativePath).split("/").filter(Boolean);
-    const category = categoryArr.length ? categoryArr.join(" > ") : "";
-    feed.item({
-      title,
-      description: metadata.description || "A new content piece is available.",
-      url: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
-      date: metadata.date,
-      guid: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
-      categories: category ? [category] : [],
-    });
-  }
+    async function processMarkdownFile(filePath, fileName) {
+      try {
+        const rawData = await fs.readFile(filePath, "utf8");
+        const { metadata } = await parseFileContent(rawData, filePath);
+        const title = fileName
+          .replace(/\..+$/, "")
+          .split("-")
+          .map((word) => capitalize(word))
+          .join(" ");
+        const relativePath = path
+          .relative(CONTENTS_DIR, filePath)
+          .split(path.sep)
+          .join("/");
+        const categoryArr = path
+          .dirname(relativePath)
+          .split("/")
+          .filter(Boolean);
+        const category = categoryArr.length ? categoryArr.join(" > ") : "";
+        feed.item({
+          title,
+          description:
+            metadata.description || "A new content piece is available.",
+          url: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
+          date: metadata.date || new Date().toISOString(),
+          guid: `http://${HOST}:${PORT}/content/${encodeURIComponent(relativePath)}`,
+          categories: category ? [category] : [],
+        });
+      } catch (error) {
+        console.error(`Error processing ${filePath} for RSS:`, error.message);
+      }
+    }
 
-  await findMarkdownFiles(CONTENTS_DIR);
-  return feed.xml({ indent: true });
+    await findMarkdownFiles(CONTENTS_DIR);
+    return feed.xml({ indent: true });
+  } catch (error) {
+    console.error("RSS Feed generation error:", error);
+    // Only provide fallback for specific cases, otherwise let the error bubble up
+    if (error.code === "ENOENT" && error.message.includes(CONTENTS_DIR)) {
+      // Contents directory doesn't exist - return empty but valid RSS
+      const fallbackFeed = new RSS({
+        title: NAME,
+        description: `RSS feed for ${NAME}'s content (no content available)`,
+        feed_url: `http://${HOST}:${PORT}/rss.xml`,
+        site_url: `http://${HOST}:${PORT}`,
+      });
+      return fallbackFeed.xml({ indent: true });
+    }
+    // For other errors, let them bubble up so tests catch real problems
+    throw error;
+  }
 }
 
 // RSS feed route
 app.get(
   "/rss.xml",
   asyncHandler(async (req, res) => {
-    const rss = await generateRSSFeed();
-    res.header("Content-Type", "application/rss+xml");
-    res.send(rss);
+    try {
+      const rss = await generateRSSFeed();
+      res.header("Content-Type", "application/rss+xml");
+      res.header("Cache-Control", "public, max-age=300"); // 5 min cache
+      res.send(rss);
+    } catch (error) {
+      console.error("RSS route error:", error);
+      res.status(500).send("RSS feed temporarily unavailable");
+    }
   }),
 );
 
@@ -380,14 +411,17 @@ app.use(async (err, req, res, next) => {
 
 async function handleError(res, err) {
   console.error(err);
-  const statusCode = err.status || 500;
+  let statusCode = err.status || 500;
   let message;
-  if (
-    statusCode === 404 ||
-    err.code === "ENOENT" ||
-    (err.message && err.message.includes("Unsupported file extension"))
-  ) {
+  if (statusCode === 404 || err.code === "ENOENT") {
+    statusCode = 200; // Soft 404: show error content but return 200 for SPA-like behavior
     message = ERROR_MESSAGES.NOT_FOUND;
+  } else if (
+    err.message &&
+    err.message.includes("Unsupported file extension")
+  ) {
+    statusCode = 200; // Show error content but return 200 for SPA-like behavior
+    message = ERROR_MESSAGES.UNSUPPORTED_FILE;
   } else {
     message = ERROR_MESSAGES.GENERIC_ERROR;
   }
